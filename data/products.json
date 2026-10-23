@@ -1,0 +1,122 @@
+[
+{
+"id": "tote_small",
+"name": "Small Tote Bag",
+"category": "bag",
+"size": "small",
+"fabric_required": [
+{
+"piece": "bag_body",
+"length_cm": 35,
+"width_cm": 30,
+"quantity": 2
+},
+{
+"piece": "bag_strap",
+"length_cm": 45,
+"width_cm": 8,
+"quantity": 2
+}
+],
+"materials": ["cotton", "canvas", "denim"],
+"fabric_notes": "Suitable for sturdy fabric scraps. Include seam allowance when cutting."
+},
+{
+"id": "tote_large",
+"name": "Large Tote Bag",
+"category": "bag",
+"size": "large",
+"fabric_required": [
+{
+"piece": "bag_body",
+"length_cm": 40,
+"width_cm": 35,
+"quantity": 2
+},
+{
+"piece": "bag_strap",
+"length_cm": 60,
+"width_cm": 8,
+"quantity": 2
+}
+],
+"materials": ["cotton", "canvas", "denim"],
+"fabric_notes": "Requires larger or multiple compatible scraps for the bag body and straps."
+},
+{
+"id": "zip_pouch_small",
+"name": "Small Zipper Pouch",
+"category": "pouch",
+"size": "small",
+"fabric_required": [
+{
+"piece": "pouch_panel",
+"length_cm": 15,
+"width_cm": 12,
+"quantity": 2
+},
+{
+"piece": "zipper_tab",
+"length_cm": 4,
+"width_cm": 3,
+"quantity": 2
+}
+],
+"materials": ["cotton", "linen", "denim"],
+"fabric_notes": "Requires a suitable zipper. Add seam allowance if the listed measurements do not already include it."
+},
+{
+"id": "zip_pouch_large",
+"name": "Large Zipper Pouch",
+"category": "pouch",
+"size": "large",
+"fabric_required": [
+{
+"piece": "pouch_panel",
+"length_cm": 22,
+"width_cm": 18,
+"quantity": 2
+},
+{
+"piece": "zipper_tab",
+"length_cm": 4,
+"width_cm": 3,
+"quantity": 2
+}
+],
+"materials": ["cotton", "linen", "denim"],
+"fabric_notes": "Requires a suitable zipper and enough fabric for both panels."
+},
+{
+"id": "scrunchie_small",
+"name": "Small Scrunchie",
+"category": "accessory",
+"size": "small",
+"fabric_required": [
+{
+"piece": "fabric_strip",
+"length_cm": 35,
+"width_cm": 8,
+"quantity": 1
+}
+],
+"materials": ["cotton", "silk", "satin"],
+"fabric_notes": "Also requires elastic. Lightweight fabric is suitable."
+},
+{
+"id": "scrunchie_large",
+"name": "Large Scrunchie",
+"category": "accessory",
+"size": "large",
+"fabric_required": [
+{
+"piece": "fabric_strip",
+"length_cm": 50,
+"width_cm": 12,
+"quantity": 1
+}
+],
+"materials": ["cotton", "silk", "satin"],
+"fabric_notes": "Also requires elastic. A longer strip can create a fuller scrunchie."
+}
+]

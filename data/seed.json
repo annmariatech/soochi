@@ -1,0 +1,146 @@
+{
+"users": [
+{
+"id": "U001",
+"name": "Ananya",
+"location": "Kalamassery, Kochi",
+"contact": "[ananya@example.com](mailto:ananya@example.com)"
+},
+{
+"id": "U002",
+"name": "Meera",
+"location": "CUSAT, Kochi",
+"contact": "[meera@example.com](mailto:meera@example.com)"
+},
+{
+"id": "U003",
+"name": "Aisha",
+"location": "Edappally, Kochi",
+"contact": "[aisha@example.com](mailto:aisha@example.com)"
+},
+{
+"id": "U004",
+"name": "Diya",
+"location": "Thrikkakara, Kochi",
+"contact": "[diya@example.com](mailto:diya@example.com)"
+},
+{
+"id": "U005",
+"name": "Nila",
+"location": "Aluva, Kerala",
+"contact": "[nila@example.com](mailto:nila@example.com)"
+}
+],
+"scraps": [
+{
+"id": "S001",
+"user_id": "U001",
+"fabric_type": "cotton",
+"color": "blue",
+"length_cm": 40,
+"width_cm": 35,
+"quantity": 1,
+"condition": "good",
+"location": "Kalamassery, Kochi"
+},
+{
+"id": "S002",
+"user_id": "U001",
+"fabric_type": "denim",
+"color": "dark blue",
+"length_cm": 30,
+"width_cm": 25,
+"quantity": 1,
+"condition": "good",
+"location": "Kalamassery, Kochi"
+},
+{
+"id": "S003",
+"user_id": "U002",
+"fabric_type": "cotton",
+"color": "yellow",
+"length_cm": 25,
+"width_cm": 20,
+"quantity": 2,
+"condition": "good",
+"location": "CUSAT, Kochi"
+},
+{
+"id": "S004",
+"user_id": "U002",
+"fabric_type": "linen",
+"color": "white",
+"length_cm": 35,
+"width_cm": 30,
+"quantity": 1,
+"condition": "good",
+"location": "CUSAT, Kochi"
+},
+{
+"id": "S005",
+"user_id": "U003",
+"fabric_type": "silk",
+"color": "pink",
+"length_cm": 40,
+"width_cm": 12,
+"quantity": 1,
+"condition": "good",
+"location": "Edappally, Kochi"
+},
+{
+"id": "S006",
+"user_id": "U003",
+"fabric_type": "cotton",
+"color": "green",
+"length_cm": 20,
+"width_cm": 15,
+"quantity": 3,
+"condition": "good",
+"location": "Edappally, Kochi"
+},
+{
+"id": "S007",
+"user_id": "U004",
+"fabric_type": "denim",
+"color": "black",
+"length_cm": 45,
+"width_cm": 35,
+"quantity": 1,
+"condition": "good",
+"location": "Thrikkakara, Kochi"
+},
+{
+"id": "S008",
+"user_id": "U004",
+"fabric_type": "cotton",
+"color": "red",
+"length_cm": 15,
+"width_cm": 10,
+"quantity": 4,
+"condition": "good",
+"location": "Thrikkakara, Kochi"
+},
+{
+"id": "S009",
+"user_id": "U005",
+"fabric_type": "linen",
+"color": "beige",
+"length_cm": 30,
+"width_cm": 25,
+"quantity": 1,
+"condition": "good",
+"location": "Aluva, Kerala"
+},
+{
+"id": "S010",
+"user_id": "U005",
+"fabric_type": "cotton",
+"color": "purple",
+"length_cm": 35,
+"width_cm": 10,
+"quantity": 2,
+"condition": "good",
+"location": "Aluva, Kerala"
+}
+]
+}

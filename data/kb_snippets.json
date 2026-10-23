@@ -1,0 +1,152 @@
+[
+{
+"id": "KB001",
+"category": "fabric",
+"title": "Cotton fabric",
+"content": "Cotton is easy to sew and suitable for tote bags, pouches, scrunchies, and small accessories."
+},
+{
+"id": "KB002",
+"category": "fabric",
+"title": "Denim fabric",
+"content": "Denim is durable and suitable for sturdy pouches, bags, coasters, and patchwork products."
+},
+{
+"id": "KB003",
+"category": "fabric",
+"title": "Silk fabric",
+"content": "Silk is lightweight and slippery. Use an appropriate needle and handle it carefully while sewing."
+},
+{
+"id": "KB004",
+"category": "product",
+"title": "Tote bag",
+"content": "A tote bag can be made from sturdy cotton, canvas, or denim. Check that the fabric fits all required pattern pieces."
+},
+{
+"id": "KB005",
+"category": "product",
+"title": "Zipper pouch",
+"content": "A zipper pouch usually needs two fabric panels, a zipper, and optional lining. Check the dimensions before cutting."
+},
+{
+"id": "KB006",
+"category": "product",
+"title": "Scrunchie",
+"content": "A scrunchie needs a fabric strip and elastic. The required fabric dimensions depend on the desired size."
+},
+{
+"id": "KB007",
+"category": "sewing",
+"title": "Seam allowance",
+"content": "Allow extra fabric for seams when required by the pattern. Check whether the listed dimensions already include seam allowance."
+},
+{
+"id": "KB008",
+"category": "measurement",
+"title": "Measure fabric",
+"content": "Measure the usable length and width of each scrap, excluding damaged or unusable sections."
+},
+{
+"id": "KB009",
+"category": "sustainability",
+"title": "Reuse small scraps",
+"content": "Small fabric scraps can be reused for patchwork, appliqué, bookmarks, and other craft projects."
+},
+{
+"id": "KB010",
+"category": "matching",
+"title": "Match fabric to products",
+"content": "Compare each scrap's dimensions with every required pattern piece before recommending a product."
+},{
+"id": "KB011",
+"category": "fabric",
+"title": "Linen fabric",
+"content": "Linen is breathable and suitable for reusable bags, simple pouches, and decorative fabric products."
+},
+{
+"id": "KB012",
+"category": "fabric",
+"title": "Thick fabric",
+"content": "Thick fabric can be useful for sturdy bags and organizers. Check whether the sewing machine and needle can handle its thickness."
+},
+{
+"id": "KB013",
+"category": "fabric",
+"title": "Stretch fabric",
+"content": "Stretch fabric may need a stretch stitch and a suitable needle to help seams move without breaking."
+},
+{
+"id": "KB014",
+"category": "fabric",
+"title": "Fabric condition",
+"content": "Inspect scraps before reuse. Avoid fabric with mold, contamination, or extensive damage, and clean and dry suitable scraps before storing them."
+},
+{
+"id": "KB015",
+"category": "measurement",
+"title": "Check fabric dimensions",
+"content": "Measure both the length and width of the usable fabric area. A scrap must fit the required pattern piece in both dimensions."
+},
+{
+"id": "KB016",
+"category": "measurement",
+"title": "Account for seam allowance",
+"content": "Check whether a pattern's measurements include seam allowance. Add the required allowance before cutting if it is not included."
+},
+{
+"id": "KB017",
+"category": "matching",
+"title": "Match multiple scraps",
+"content": "Several small scraps may work together for patchwork, but each individual pattern piece must fit a suitable piece of fabric."
+},
+{
+"id": "KB018",
+"category": "matching",
+"title": "Check fabric quantity",
+"content": "Compare the available quantity of each scrap with the number of pieces required by the selected product pattern."
+},
+{
+"id": "KB019",
+"category": "sewing",
+"title": "Prevent fraying",
+"content": "Woven fabric edges may fray after cutting. Consider zigzag stitching, an overlocker, or another suitable edge finish."
+},
+{
+"id": "KB020",
+"category": "sewing",
+"title": "Choose a suitable needle",
+"content": "Choose a sewing needle suited to the fabric type and thickness. Test the needle and stitch settings on a spare piece first."
+},
+{
+"id": "KB021",
+"category": "sewing",
+"title": "Prepare fabric before cutting",
+"content": "Remove loose threads, inspect damaged sections, and press fabric flat before measuring and cutting pattern pieces."
+},
+{
+"id": "KB022",
+"category": "product",
+"title": "Make patchwork products",
+"content": "Small fabric scraps can be joined into a larger patchwork panel for products such as pouches, bags, and decorative items."
+},
+{
+"id": "KB023",
+"category": "sustainability",
+"title": "Reduce cutting waste",
+"content": "Arrange pattern pieces carefully before cutting and save usable leftover sections for smaller sewing projects."
+},
+{
+"id": "KB024",
+"category": "sustainability",
+"title": "Share unused fabric",
+"content": "If a fabric scrap is not useful for your current project, consider sharing or exchanging it with someone who can reuse it."
+},
+{
+"id": "KB025",
+"category": "matching",
+"title": "Find missing fabric",
+"content": "If available scraps are insufficient for a product, identify the missing fabric dimensions and search for compatible scraps from other users."
+}
+
+]
