@@ -1,59 +1,15 @@
 # Soochi
 
-Soochi helps tailors and makers reuse fabric scraps. The repository contains a
-React/Vite frontend demo and a FastAPI backend. The frontend's current demo
-flows use browser mock data; the backend API can be run separately.
+Soochi helps tailors and makers reuse fabric scraps. The React/Vite frontend
+uses the FastAPI backend for authentication, scrap analysis and storage,
+products, matching, nearby listings, and requests.
 
 Exact coordinates are never shown to other users. Listings expose an area name
 and approximate distance.
 
-## Run the frontend demo
+## Run the app
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open the URL printed by Vite, usually `http://localhost:5173/`. The demo needs
-no API keys or `.env` file.
-
-### Demo login
-
-- Contact: `9876543210`
-- Name: Haaniah
-- Area: Kalamassery
-
-That account has sample scraps, incoming and outgoing requests. Sign up with
-another 10-digit number to start with an empty basket.
-
-### What to try
-
-1. **Inventory:** search and filter scraps.
-2. **Add scrap:** upload a photo, run the simulated scan, edit attributes, and save.
-3. **Make things · Mode A:** select scraps and see catalogue product matches.
-4. **Make things · Mode B:** enter a product size and see nearby mock scraps if short.
-5. **Near me:** request a listing (area and distance only).
-6. **Requests:** approve or decline incoming asks; owner contact appears after approval.
-
-Fit calculations in the frontend demo are deterministic and use dimensions,
-not model-generated measurements.
-
-### Reset demo data
-
-In the browser console:
-
-```js
-localStorage.removeItem("soochi_demo_state")
-localStorage.removeItem("soochi_token")
-localStorage.removeItem("soochi_user_id")
-```
-
-Refresh and log in again.
-
-## Run the backend
-
-From the repository root:
+Start the backend in one terminal from the repository root:
 
 ```bash
 python3 -m venv .venv
@@ -61,6 +17,34 @@ source .venv/bin/activate
 pip install -r backend/requirements.txt
 uvicorn backend.main:app --reload
 ```
+
+Start the frontend in another terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open the URL printed by Vite, usually `http://localhost:5173/`. Vite proxies
+`/api` calls to `http://localhost:8000`. For a separately hosted API, set
+`VITE_API_URL` in `frontend/.env` to its base URL.
+
+Create an account from the signup page (passwords must be at least 8
+characters), then log in with that account. Existing demo-browser data is not
+imported into the SQLite database.
+
+### What to try
+
+1. **Inventory:** search and filter scraps.
+2. **Add scrap:** upload a photo, run the backend analysis, review and save detected scraps.
+3. **Make things · Mode A:** select scraps and request catalogue product matches from FastAPI.
+4. **Make things · Mode B:** enter a product size and request scrap matches from FastAPI.
+5. **Near me:** request a listing (area and distance only).
+6. **Requests:** approve or decline incoming asks; owner contact appears after approval.
+
+Matching endpoints currently return backend mock suggestions. Accounts, scraps,
+nearby listings, and requests are stored in SQLite.
 
 The API runs at `http://localhost:8000`; interactive docs are at
 `http://localhost:8000/docs`. SQLite creates `soochi.db` in the working
@@ -120,6 +104,12 @@ curl http://localhost:8000/scraps/mine -H 'Authorization: Bearer TOKEN'
 
 ```bash
 curl http://localhost:8000/products -H 'Authorization: Bearer TOKEN'
+```
+
+### Nearby listings: `GET /nearby`
+
+```bash
+curl http://localhost:8000/nearby -H 'Authorization: Bearer TOKEN'
 ```
 
 ### Match scraps to products: `POST /match/scraps-to-products`

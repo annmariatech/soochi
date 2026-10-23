@@ -27,6 +27,7 @@ class Scrap(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     temp_id: Mapped[str] = mapped_column(String(80))
+    name: Mapped[str] = mapped_column(String(160), default="Fabric scrap")
     width_cm: Mapped[float] = mapped_column(Float)
     height_cm: Mapped[float] = mapped_column(Float)
     color_hex: Mapped[str] = mapped_column(String(16))

@@ -37,6 +37,7 @@ class AuthOut(BaseModel):
 
 class ScrapInput(BaseModel):
     temp_id: str
+    name: str = Field(default="Fabric scrap", max_length=160)
     width_cm: float = Field(gt=0)
     height_cm: float = Field(gt=0)
     color_hex: str

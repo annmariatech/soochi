@@ -1,18 +1,87 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { analyzeScraps, saveScraps } from "../api"
 import { FABRIC_TYPES, PATTERNS, STRETCH, WEIGHTS } from "../lib/scraps"
 
 export default function AddScrapPage() {
   const navigate = useNavigate()
+  const uploadInputRef = useRef(null)
+  const videoRef = useRef(null)
   const [photo, setPhoto] = useState(null)
   const [preview, setPreview] = useState("")
+  const [cameraOpen, setCameraOpen] = useState(false)
   const [annotated, setAnnotated] = useState("")
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [scraps, setScraps] = useState([])
   const [error, setError] = useState("")
   const [notice, setNotice] = useState("")
+
+  useEffect(() => {
+    if (!cameraOpen) return undefined
+    let active = true
+    let stream
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError("Camera access is unavailable in this browser. Upload an image instead.")
+      setCameraOpen(false)
+      return undefined
+    }
+
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false })
+      .then((cameraStream) => {
+        if (!active) {
+          cameraStream.getTracks().forEach((track) => track.stop())
+          return
+        }
+        stream = cameraStream
+        if (videoRef.current) videoRef.current.srcObject = cameraStream
+      })
+      .catch(() => {
+        setError("Could not open the camera. Allow camera access or upload an image.")
+        setCameraOpen(false)
+      })
+
+    return () => {
+      active = false
+      stream?.getTracks().forEach((track) => track.stop())
+      if (videoRef.current) videoRef.current.srcObject = null
+    }
+  }, [cameraOpen])
+
+  useEffect(
+    () => () => {
+      if (preview.startsWith("blob:")) URL.revokeObjectURL(preview)
+    },
+    [preview],
+  )
+
+  function selectPhoto(file) {
+    if (!file) return
+    setPhoto(file)
+    setPreview(URL.createObjectURL(file))
+    setAnnotated("")
+    setScraps([])
+    setError("")
+    setNotice("")
+  }
+
+  function capturePhoto() {
+    const video = videoRef.current
+    if (!video?.videoWidth || !video.videoHeight) {
+      setError("The camera is still starting. Try again in a moment.")
+      return
+    }
+    const canvas = document.createElement("canvas")
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height)
+    canvas.toBlob((blob) => {
+      if (blob) selectPhoto(new File([blob], "soochi-camera.jpg", { type: "image/jpeg" }))
+      setCameraOpen(false)
+    }, "image/jpeg", 0.92)
+  }
 
   async function handleAnalyze() {
     if (!photo) {
@@ -54,7 +123,7 @@ export default function AddScrapPage() {
         })),
       )
       setNotice(
-        `Simulated scan found ${detected.length} scrap${detected.length === 1 ? "" : "s"} with preset demo measurements. Edit anything that looks off before saving.`,
+        `The photo analysis found ${detected.length} scrap${detected.length === 1 ? "" : "s"}. Review the detected measurements and tags before saving.`,
       )
     } catch (err) {
       setError(err.message || "Could not analyze this photo.")
@@ -121,39 +190,61 @@ export default function AddScrapPage() {
       <section className="add-step-card">
         <h2>1. Photograph your fabric</h2>
         <p>
-          Place each scrap on a flat surface. Keep a ruler or reference marker
-          clearly visible. In this demo, scanning returns prepared measurements
-          rather than guessing from the photo.
+          Place each scrap on a flat surface with a ruler or reference marker
+          clearly visible so the image analysis can estimate its dimensions.
         </p>
 
-        <label className="photo-picker">
-          <span>
-            {photo ? "Choose another photo" : "Take a photo or upload an image"}
-          </span>
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (!file) return
-              setPhoto(file)
-              setPreview(URL.createObjectURL(file))
-              setAnnotated("")
-              setScraps([])
+        <div className="photo-source-actions">
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => {
               setError("")
-              setNotice("")
+              setCameraOpen(true)
+            }}
+          >
+            Take a photo
+          </button>
+          <button
+            type="button"
+            className="add-button"
+            onClick={() => uploadInputRef.current?.click()}
+          >
+            Upload an image
+          </button>
+          <input
+            ref={uploadInputRef}
+            type="file"
+            className="photo-upload-input"
+            accept="image/*"
+            onChange={(event) => {
+              selectPhoto(event.target.files?.[0])
+              event.target.value = ""
             }}
           />
-        </label>
+        </div>
+
+        {cameraOpen && (
+          <div className="camera-preview">
+            <video ref={videoRef} autoPlay playsInline aria-label="Camera preview" />
+            <div className="camera-actions">
+              <button type="button" className="primary-button" onClick={capturePhoto}>
+                Capture photo
+              </button>
+              <button type="button" className="add-button" onClick={() => setCameraOpen(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {preview && (
           <img className="uploaded-photo" src={preview} alt="Selected fabric" />
         )}
         {annotated && (
           <figure className="annotated-preview">
-            <img src={annotated} alt="Simulated scan overlay" />
-            <figcaption>Demo scan preview — dimensions come from mock data.</figcaption>
+            <img src={annotated} alt="Fabric scan overlay" />
+            <figcaption>Detected scrap regions from your uploaded photo.</figcaption>
           </figure>
         )}
 

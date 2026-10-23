@@ -278,7 +278,7 @@ export default function MakePage() {
                 ))}
               </div>
               {!result.nearby.length && (
-                <p className="empty-copy">No nearby mock scraps cover the missing piece.</p>
+                <p className="empty-copy">No nearby scraps cover the missing piece.</p>
               )}
             </>
           )}

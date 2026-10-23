@@ -740,6 +740,45 @@ input:focus-visible {
   line-height: 1.7;
 }
 
+.photo-source-actions,
+.camera-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.photo-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.camera-preview {
+  margin: 18px 0;
+  padding: 14px;
+  border: 1px solid #e4c9ca;
+  border-radius: 16px;
+  background: #fff5f4;
+}
+
+.camera-preview video {
+  display: block;
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #241f1d;
+}
+
+.camera-actions {
+  margin-bottom: 0;
+}
+
+/* Retain the old upload-card styles for other components that reuse it. */
 .photo-picker {
   display: flex;
   flex-direction: column;

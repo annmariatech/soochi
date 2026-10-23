@@ -1,12 +1,13 @@
 """Soochi API: persistent accounts/scraps/requests with fast-start mock analysis."""
 
 from pathlib import Path
+from math import atan2, cos, radians, sin, sqrt
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import select
+from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
 from .ai.vlm import tag_scrap
@@ -17,6 +18,13 @@ from .schemas import AuthOut, ProductMatchInput, ProductOut, RequestCreate, Requ
 from vision.detect import detect_scraps
 
 Base.metadata.create_all(bind=engine)
+
+# create_all does not add columns to an existing SQLite database.
+if "scraps" in inspect(engine).get_table_names() and "name" not in {
+    column["name"] for column in inspect(engine).get_columns("scraps")
+}:
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE scraps ADD COLUMN name VARCHAR(160) NOT NULL DEFAULT 'Fabric scrap'"))
 
 MEDIA_DIR = Path(__file__).resolve().parents[1] / "data" / "generated_media"
 MEDIA_DIR.mkdir(parents=True, exist_ok=True)
@@ -118,6 +126,30 @@ def products(_user: User = Depends(get_current_user)):
     return MOCK_PRODUCTS
 
 
+@app.get("/nearby")
+def nearby_scraps(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    listings = []
+    for scrap in db.scalars(select(Scrap).where(Scrap.owner_id != user.id)):
+        owner = db.get(User, scrap.owner_id)
+        if owner is None:
+            continue
+        lat1, lat2 = radians(user.lat), radians(owner.lat)
+        dlat, dlng = lat2 - lat1, radians(owner.lng - user.lng)
+        haversine = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlng / 2) ** 2
+        distance = 6371 * 2 * atan2(sqrt(haversine), sqrt(1 - haversine))
+        listings.append({
+            "scrap": {
+                "id": scrap.id, "owner_id": scrap.owner_id, "temp_id": scrap.temp_id,
+                "name": scrap.name, "width_cm": scrap.width_cm, "height_cm": scrap.height_cm,
+                "color_hex": scrap.color_hex, "crop_url": scrap.crop_url, "tags": scrap.tags,
+            },
+            "owner_name": owner.name,
+            "owner_area": owner.area_name,
+            "distance_km": round(distance, 1),
+        })
+    return sorted(listings, key=lambda listing: listing["distance_km"])
+
+
 @app.post("/match/scraps-to-products")
 def match_scraps_to_products(_payload: dict, _user: User = Depends(get_current_user)):
     return [
@@ -148,11 +180,12 @@ def _request_view(request: ReuseRequest, db: Session, incoming: bool):
     result = {
         "id": request.id, "scrap_id": request.scrap_id, "requester_id": request.requester_id,
         "status": request.status, "created_at": request.created_at.isoformat(),
-        "scrap": {"id": scrap.id, "width_cm": scrap.width_cm, "height_cm": scrap.height_cm, "color_hex": scrap.color_hex, "crop_url": scrap.crop_url, "tags": scrap.tags} if scrap else None,
+        "scrap": {"id": scrap.id, "name": scrap.name, "width_cm": scrap.width_cm, "height_cm": scrap.height_cm, "color_hex": scrap.color_hex, "crop_url": scrap.crop_url, "tags": scrap.tags} if scrap else None,
     }
     if incoming:
         result["requester"] = {"id": requester.id, "name": requester.name, "area_name": requester.area_name} if requester else None
     else:
+        result["owner_name"] = owner.name if owner else None
         result["owner_area"] = owner.area_name if owner else None
         if request.status == "approved" and owner:
             result["owner_contact"] = owner.contact

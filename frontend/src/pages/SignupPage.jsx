@@ -7,6 +7,7 @@ export default function SignupPage() {
   const areas = getAreas()
   const [name, setName] = useState("")
   const [contact, setContact] = useState("")
+  const [password, setPassword] = useState("")
   const [areaName, setAreaName] = useState(areas[0].name)
   const [coords, setCoords] = useState(null)
   const [locationNote, setLocationNote] = useState(
@@ -52,6 +53,7 @@ export default function SignupPage() {
       await signup({
         name,
         contact,
+        password,
         area_name: areaName,
         lat: coords?.lat ?? areas.find((area) => area.name === areaName)?.lat,
         lng: coords?.lng ?? areas.find((area) => area.name === areaName)?.lng,
@@ -86,6 +88,17 @@ export default function SignupPage() {
               value={contact}
               onChange={(event) => setContact(event.target.value)}
               inputMode="numeric"
+              required
+            />
+          </label>
+          <label>
+            Password
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="new-password"
+              minLength={8}
               required
             />
           </label>

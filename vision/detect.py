@@ -1,10 +1,5 @@
 
-"""
-A4 reference detection for the fabric-scrap CV module.
-
-This step detects the paper and rectifies its perspective.
-Scrap measurements will be connected to this calibration in a later step.
-"""
+"""Detect an A4 calibration sheet and segment fabric scraps in a photo."""
 
 import cv2
 import numpy as np
@@ -18,6 +13,8 @@ A4_HEIGHT_CM = 29.7
 # This is an output-image scale, not yet the scale of the original photo.
 RECTIFIED_PIXELS_PER_CM = 20
 MIN_SCRAP_AREA_CM2 = 1.0
+# Suppress small smooth tabletop objects relative to the A4 scale reference.
+MIN_SCRAP_TO_REFERENCE_RATIO = 0.12
 
 
 def _decode_image(image_bytes: bytes):
@@ -51,6 +48,45 @@ def _order_corners(points):
     return ordered
 
 
+def _a4_dimensions_for_corners(corners):
+    """Return physical A4 width and height in the detected orientation."""
+    top_left, top_right, bottom_right, bottom_left = corners
+    horizontal = (
+        np.linalg.norm(top_right - top_left)
+        + np.linalg.norm(bottom_right - bottom_left)
+    ) / 2
+    vertical = (
+        np.linalg.norm(bottom_left - top_left)
+        + np.linalg.norm(bottom_right - top_right)
+    ) / 2
+    if horizontal >= vertical:
+        return A4_HEIGHT_CM, A4_WIDTH_CM
+    return A4_WIDTH_CM, A4_HEIGHT_CM
+
+
+def _reference_score(gray, hsv, corners, area_fraction):
+    """Score how much a quadrilateral resembles a clean white paper sheet."""
+    polygon = np.zeros(gray.shape, dtype=np.uint8)
+    cv2.fillPoly(polygon, [np.round(corners).astype(np.int32)], 255)
+
+    # Ignore the outline, where table pixels can skew the sheet statistics.
+    inset = cv2.erode(polygon, np.ones((9, 9), dtype=np.uint8))
+    sample_mask = inset if cv2.countNonZero(inset) else polygon
+    pixels = sample_mask > 0
+    if not np.any(pixels):
+        return 0.0
+
+    brightness = float(gray[pixels].mean()) / 255.0
+    texture = float(gray[pixels].std())
+    saturation = float(hsv[:, :, 1][pixels].mean()) / 255.0
+
+    # White paper is bright, nearly neutral, and smoother than folded cloth.
+    # Area only breaks ties so a larger piece of pale fabric cannot win merely
+    # by covering more of the photo.
+    paper_likelihood = brightness**2 * (1.0 - saturation) / (1.0 + texture / 25.0)
+    return paper_likelihood * (0.9 + 0.1 * min(area_fraction / 0.25, 1.0))
+
+
 def _find_a4_corners(image):
     """
     Find the most plausible A4-shaped quadrilateral.
@@ -61,6 +97,7 @@ def _find_a4_corners(image):
     """
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     # Try both edge detection and threshold-based segmentation.
     _, otsu = cv2.threshold(
@@ -130,11 +167,14 @@ def _find_a4_corners(image):
             # A4's short-side/long-side ratio is approximately 0.707.
             # Allow for perspective and detection inaccuracies without
             # accepting broad fabric pieces as A4 sheets.
-            if not 0.60 <= ratio <= 0.72:
+            # Perspective, photo rotation, and lens distortion can push the
+            # apparent ratio away from A4's true 0.707 value.
+            if not 0.50 <= ratio <= 0.90:
                 continue
 
-            # Prefer large, well-defined candidates.
-            score = area * (1.0 - abs(ratio - (21 / 29.7)))
+            # Choose the most paper-like candidate rather than the largest
+            # A4-shaped object; fabric pieces can be larger than the sheet.
+            score = _reference_score(gray, hsv, corners, area / image_area)
 
             candidates.append((score, corners))
 
@@ -181,11 +221,10 @@ def detect_a4_reference(image_bytes: bytes) -> dict:
             "rectified_paper_png": None,
         }
 
-    # Calculate the output dimensions for a front-facing A4 image.
-    output_width = round(A4_WIDTH_CM * RECTIFIED_PIXELS_PER_CM)
-    output_height = round(A4_HEIGHT_CM * RECTIFIED_PIXELS_PER_CM)
-
     source_points = corners.astype(np.float32)
+    paper_width_cm, paper_height_cm = _a4_dimensions_for_corners(corners)
+    output_width = round(paper_width_cm * RECTIFIED_PIXELS_PER_CM)
+    output_height = round(paper_height_cm * RECTIFIED_PIXELS_PER_CM)
 
     destination_points = np.array(
         [
@@ -332,8 +371,9 @@ def _rectify_full_image(image, corners):
     and the A4 rectangle in corrected-image coordinates.
     """
     scale = RECTIFIED_PIXELS_PER_CM
-    paper_w = round(A4_WIDTH_CM * scale)
-    paper_h = round(A4_HEIGHT_CM * scale)
+    paper_width_cm, paper_height_cm = _a4_dimensions_for_corners(corners)
+    paper_w = round(paper_width_cm * scale)
+    paper_h = round(paper_height_cm * scale)
 
     destination = np.array(
         [
@@ -471,7 +511,12 @@ def detect_scraps(
             "scraps": [],
         }
 
+    reference_object_min_area_cm2 = max(
+        MIN_SCRAP_AREA_CM2,
+        A4_WIDTH_CM * A4_HEIGHT_CM * MIN_SCRAP_TO_REFERENCE_RATIO,
+    )
     min_area_px = MIN_SCRAP_AREA_CM2 * pixels_per_cm**2
+    reference_object_min_area_px = reference_object_min_area_cm2 * pixels_per_cm**2
 
         # Identify pixels that came from the original photograph.
     # Perspective correction creates black pixels outside the photo.
@@ -517,20 +562,43 @@ def detect_scraps(
     hsv = cv2.cvtColor(rectified, cv2.COLOR_BGR2HSV)
     saturation = hsv[:, :, 1]
     value = hsv[:, :, 2]
-    chromatic = np.where(saturation >= 60, 255, 0).astype(np.uint8)
     bright_neutral = np.where(
         (value >= 175) & (saturation <= 55), 255, 0
     ).astype(np.uint8)
-    candidates = [otsu, adaptive, chromatic, bright_neutral]
 
-    # Exclude the A4 sheet from scrap detection.
-    # For this initial version, scraps should be placed beside the paper.
-        # Ignore artificial pixels outside the original photograph.
-    for mask in candidates:
+    # Separate strongly colored fabric from the brown tabletop using hue
+    # contrast. A raw saturation mask also selects the wood grain and merges
+    # the table with the fabric.
+    edge = np.zeros(gray.shape, dtype=bool)
+    edge[:8, :] = True
+    edge[-8:, :] = True
+    edge[:, :8] = True
+    edge[:, -8:] = True
+    background_pixels = hsv[edge & (valid_region > 0)]
+    if len(background_pixels):
+        background_hue = float(np.median(background_pixels[:, 0]))
+        hue_delta = np.abs(hsv[:, :, 0].astype(np.float32) - background_hue)
+        hue_delta = np.minimum(hue_delta, 180 - hue_delta)
+        hue_contrast = np.where(
+            (hue_delta >= 15) & (saturation >= 50), 255, 0
+        ).astype(np.uint8)
+    else:
+        hue_contrast = np.zeros(gray.shape, dtype=np.uint8)
+
+    # Small colored fabric pieces remain eligible. Smooth neutral objects such
+    # as the light switch must clear the larger A4-relative size floor.
+    candidates = [
+        (otsu, reference_object_min_area_px),
+        (adaptive, reference_object_min_area_px),
+        (bright_neutral, reference_object_min_area_px),
+        (hue_contrast, min_area_px),
+    ]
+
+    # Ignore artificial pixels outside the original photograph.
+    for mask, _candidate_min_area_px in candidates:
         mask[valid_region == 0] = 0
 
     # Exclude the A4 sheet from scrap detection.
-    # Place scraps beside the sheet, not on top of it.
     if paper_polygon is not None:
         paper_mask = np.zeros(gray.shape, dtype=np.uint8)
 
@@ -540,15 +608,16 @@ def detect_scraps(
             255,
         )
 
-        for mask in candidates:
+        for mask, _candidate_min_area_px in candidates:
             mask[paper_mask > 0] = 0
 
     # Choose the foreground mask that explains the most coherent fabric area.
     # Counting contours alone favors masks that split folds into many pieces.
     best_score = 0.0
     best_mask = None
+    best_min_area_px = min_area_px
 
-    for mask in candidates:
+    for mask, candidate_min_area_px in candidates:
         mask = cv2.morphologyEx(
             mask,
             cv2.MORPH_CLOSE,
@@ -562,7 +631,7 @@ def detect_scraps(
             contour
             for contour in contours
             if (
-                cv2.contourArea(contour) >= min_area_px
+                cv2.contourArea(contour) >= candidate_min_area_px
                 and not _touches_image_border(contour, rectified.shape)
             )
         ]
@@ -572,6 +641,7 @@ def detect_scraps(
         if score > best_score:
             best_score = score
             best_mask = mask.copy()
+            best_min_area_px = candidate_min_area_px
 
     scraps = []
 
@@ -584,7 +654,7 @@ def detect_scraps(
         # Suppress fragments that are tiny relative to the largest fabric
         # region; also reject hairline slivers, which are usually fold edges.
         largest_area = max((cv2.contourArea(contour) for contour in contours), default=0)
-        min_region_area = max(min_area_px, largest_area * 0.05)
+        min_region_area = max(best_min_area_px, largest_area * 0.05)
 
         # Sort by position to keep temporary IDs reasonably predictable.
         contours = sorted(

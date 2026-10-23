@@ -1,109 +1,220 @@
-import {
-  analyzeScraps as mockAnalyze,
-  saveScraps as mockSave,
-  getMyScraps as mockMine,
-  getProducts as mockProducts,
-  getNearbyScraps as mockNearby,
-  createRequest as mockCreateRequest,
-  getIncomingRequests as mockIncoming,
-  getOutgoingRequests as mockOutgoing,
-  respondToRequest as mockRespond,
-  signup as mockSignup,
-  login as mockLogin,
-  logout as mockLogout,
-  getSessionUser,
-  getToken,
-  getAreas,
-  resolveAreaFromCoords,
-} from "./mock/store"
-import { matchProductToScraps as calcProductMatch, matchScrapsToProducts as calcScrapMatch } from "./lib/matching"
+import seed from "./mock/demo.json"
+import { nearestArea, roundKm } from "./lib/scraps"
+
+const API_BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "")
+const DEFAULT_API_ORIGIN = "http://localhost:8000"
+const TOKEN_KEY = "soochi_token"
+const USER_KEY = "soochi_user"
+
+function apiOrigin() {
+  if (API_BASE.startsWith("/")) return DEFAULT_API_ORIGIN
+  return new URL(API_BASE, window.location.origin).origin
+}
+
+function mediaUrl(url) {
+  if (!url || /^(data:|https?:\/\/|blob:)/i.test(url)) return url
+  return `${apiOrigin()}${url.startsWith("/") ? "" : "/"}${url}`
+}
+
+async function request(path, { body, formData, ...options } = {}) {
+  const headers = new Headers(options.headers || {})
+  const token = getToken()
+  if (token) headers.set("Authorization", `Bearer ${token}`)
+  if (body !== undefined) headers.set("Content-Type", "application/json")
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    method: options.method || (body !== undefined || formData ? "POST" : "GET"),
+    headers,
+    body: formData || (body === undefined ? undefined : JSON.stringify(body)),
+  })
+
+  const payload = response.status === 204 ? null : await response.json().catch(() => null)
+  if (!response.ok) {
+    const detail = payload?.detail
+    const message = Array.isArray(detail)
+      ? detail.map((item) => item.msg).join("; ")
+      : typeof detail === "string"
+        ? detail
+        : `Request failed (${response.status})`
+    throw new Error(message)
+  }
+  return payload
+}
+
+function storeSession(auth) {
+  localStorage.setItem(TOKEN_KEY, auth.token)
+  localStorage.setItem(USER_KEY, JSON.stringify(auth.user))
+  // Remove the old demo session so it cannot be mistaken for a backend login.
+  localStorage.removeItem("soochi_user_id")
+  return auth
+}
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY)
+}
 
 export async function signup(data) {
-  return mockSignup(data)
+  return storeSession(await request("/auth/signup", { body: data }))
 }
 
 export async function login(data) {
-  return mockLogin(data)
+  return storeSession(await request("/auth/login", { body: data }))
 }
 
 export function logout() {
-  mockLogout()
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(USER_KEY)
+  localStorage.removeItem("soochi_user_id")
 }
 
 export function currentUser() {
-  const user = getSessionUser()
-  if (!user) return null
-  return {
-    id: user.id,
-    name: user.name,
-    contact: user.contact,
-    area_name: user.area_name,
+  try {
+    return JSON.parse(localStorage.getItem(USER_KEY) || "null")
+  } catch {
+    return null
   }
 }
 
 export function isLoggedIn() {
-  return Boolean(getToken() && getSessionUser())
+  return Boolean(getToken() && currentUser())
 }
 
 export async function analyzeScraps(image) {
   if (!image) throw new Error("Please take or upload a fabric photo first.")
-  return mockAnalyze(image)
+  const formData = new FormData()
+  formData.append("image", image)
+  const result = await request("/scraps/analyze", { formData })
+  return {
+    ...result,
+    annotated_image_url: mediaUrl(result.annotated_image_url),
+    scraps: (result.scraps || []).map((scrap) => ({
+      ...scrap,
+      crop_url: mediaUrl(scrap.crop_url),
+    })),
+  }
 }
 
 export async function saveScraps(scraps) {
-  return mockSave(scraps)
+  const payload = scraps.map((scrap, index) => ({
+    temp_id: scrap.temp_id || `scrap-${index + 1}`,
+    name: scrap.name,
+    width_cm: Number(scrap.width_cm),
+    height_cm: Number(scrap.height_cm),
+    color_hex: scrap.color_hex,
+    crop_url: scrap.crop_url || "",
+    tags: {
+      ...scrap.tags,
+      fabric_type: scrap.fabric_type || scrap.tags?.fabric_type || "other",
+      stretch: scrap.stretch || scrap.tags?.stretch || "none",
+      weight: scrap.weight || scrap.tags?.weight || "medium",
+      pattern: scrap.pattern || scrap.tags?.pattern || "solid",
+      dominant_color:
+        scrap.color_name || scrap.tags?.dominant_color || "unknown",
+      defects: scrap.tags?.defects || [],
+    },
+  }))
+  return request("/scraps", { body: payload }).then((items) =>
+    items.map((item) => ({ ...item, crop_url: mediaUrl(item.crop_url) })),
+  )
 }
 
 export async function getMyScraps() {
-  return mockMine()
+  const scraps = await request("/scraps/mine")
+  return scraps.map((scrap) => ({ ...scrap, crop_url: mediaUrl(scrap.crop_url) }))
 }
 
-export async function getProducts() {
-  return mockProducts()
+export function getProducts() {
+  return request("/products")
 }
 
 export async function matchScrapsToProducts(scrapIds) {
-  const [mine, products] = await Promise.all([mockMine(), mockProducts()])
-  const selected = mine.filter((scrap) => scrapIds.includes(scrap.id))
-  if (!selected.length) return []
-  return calcScrapMatch(selected, products)
+  const [matches, products] = await Promise.all([
+    request("/match/scraps-to-products", { body: { scrap_ids: scrapIds } }),
+    getProducts(),
+  ])
+  const byId = new Map(products.map((product) => [product.id, product]))
+  return matches.map((match) => ({ ...byId.get(match.product_id), ...match }))
 }
 
 export async function matchProductToScraps(input) {
-  const [mine, nearby] = await Promise.all([mockMine(), mockNearby()])
-  const product = {
-    name: input.name || "Custom project",
-    size_label: input.size_label || "Custom",
-    pieces: [
-      {
-        w_cm: Number(input.w_cm),
-        h_cm: Number(input.h_cm),
-        qty: Math.max(1, Number(input.qty) || 1),
+  const [result, mine, nearby] = await Promise.all([
+    request("/match/product-to-scraps", {
+      body: {
+        custom: {
+          name: input.name || "Custom project",
+          width_cm: Number(input.w_cm),
+          height_cm: Number(input.h_cm),
+        },
       },
-    ],
-    fabric_notes: input.fabric_notes || "",
+    }),
+    getMyScraps(),
+    getNearbyListings(),
+  ])
+  const ownScraps = new Map(mine.map((scrap) => [scrap.id, scrap]))
+  return {
+    ...result,
+    // The match endpoint currently supplies mock suggestions. Resolve them to
+    // actual saved scraps so that displayed cards and request actions use IDs
+    // that exist in this user's database.
+    matches: (result.matches || [])
+      .filter((item) => ownScraps.has(item.scrap?.id))
+      .map((item) => ({ ...item, scrap: ownScraps.get(item.scrap.id) })),
+    nearby: nearby.map((item) => ({
+      ...item,
+      verdict: {
+        suitable: true,
+        reason: "This nearby maker has a scrap available to request.",
+      },
+    })),
   }
-  return calcProductMatch(product, mine, nearby)
 }
 
 export async function getNearbyListings() {
-  return mockNearby()
+  const listings = await request("/nearby")
+  return listings.map((item) => ({
+    ...item,
+    scrap: { ...item.scrap, crop_url: mediaUrl(item.scrap?.crop_url) },
+  }))
 }
 
-export async function createRequest(scrapId) {
-  return mockCreateRequest(scrapId)
+export function createRequest(scrapId) {
+  return request("/requests", { body: { scrap_id: Number(scrapId) } })
+}
+
+function normalizeRequest(item, incoming) {
+  return {
+    ...item,
+    scrap: item.scrap
+      ? { ...item.scrap, crop_url: mediaUrl(item.scrap.crop_url) }
+      : null,
+    requester_name: item.requester?.name || item.requester_name,
+    requester_area: item.requester?.area_name || item.requester_area,
+    owner_name: item.owner_name || (incoming ? undefined : "Maker"),
+  }
 }
 
 export async function getIncomingRequests() {
-  return mockIncoming()
+  return (await request("/requests/incoming")).map((item) =>
+    normalizeRequest(item, true),
+  )
 }
 
 export async function getOutgoingRequests() {
-  return mockOutgoing()
+  return (await request("/requests/outgoing")).map((item) =>
+    normalizeRequest(item, false),
+  )
 }
 
-export async function respondToRequest(id, action) {
-  return mockRespond(id, action)
+export function respondToRequest(id, action) {
+  return request(`/requests/${id}/respond`, { body: { action } })
 }
 
-export { getAreas, resolveAreaFromCoords, getToken }
+export function getAreas() {
+  return structuredClone(seed.areas)
+}
+
+export function resolveAreaFromCoords(lat, lng) {
+  const match = nearestArea(lat, lng, seed.areas)
+  return { area_name: match.name, lat, lng, distance_km: roundKm(match.distance_km) }
+}

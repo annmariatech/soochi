@@ -5,7 +5,8 @@ import { login } from "../api"
 export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [contact, setContact] = useState("9876543210")
+  const [contact, setContact] = useState("")
+  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -14,7 +15,7 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
     try {
-      await login({ contact })
+      await login({ contact, password })
       navigate(location.state?.from || "/inventory", { replace: true })
     } catch (err) {
       setError(err.message)
@@ -29,10 +30,7 @@ export default function LoginPage() {
         <form className="other-inner auth-card" onSubmit={handleSubmit}>
           <span className="eyebrow">WELCOME BACK, MAKER</span>
           <h1>Log in to your scrap basket.</h1>
-          <p>
-            This demo keeps everything in your browser. Try contact
-            <strong> 9876543210</strong> for the seeded inventory.
-          </p>
+          <p>Log in to your account to see your saved scraps and requests.</p>
           <label>
             Contact number
             <input
@@ -41,6 +39,17 @@ export default function LoginPage() {
               inputMode="numeric"
               autoComplete="tel"
               aria-label="Contact number"
+              required
+            />
+          </label>
+          <label>
+            Password
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+              required
             />
           </label>
           {error && <p className="error-note">{error}</p>}
@@ -48,7 +57,7 @@ export default function LoginPage() {
             {loading ? "Opening the basket…" : "Enter Soochi"}
           </button>
           <p className="auth-switch">
-            New here? <Link to="/signup">Create a demo account</Link>
+            New here? <Link to="/signup">Create an account</Link>
           </p>
         </form>
       </section>
