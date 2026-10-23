@@ -6,6 +6,8 @@ const navigation = [
   { to: "/make", icon: "✂", label: "Make things" },
   { to: "/nearby", icon: "⌖", label: "Near me" },
   { to: "/requests", icon: "♡", label: "Requests" },
+  { to: "/favourites", icon: "♥", label: "Favourites" },
+  { to: "/profile", icon: "◉", label: "Profile" },
 ]
 
 export default function Layout() {

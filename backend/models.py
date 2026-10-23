@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -30,6 +30,9 @@ class Scrap(Base):
     name: Mapped[str] = mapped_column(String(160), default="Fabric scrap")
     width_cm: Mapped[float] = mapped_column(Float)
     height_cm: Mapped[float] = mapped_column(Float)
+    area_cm2: Mapped[float | None] = mapped_column(Float, nullable=True)
+    shape_type: Mapped[str] = mapped_column(String(20), default="rectangle")
+    radius_cm: Mapped[float | None] = mapped_column(Float, nullable=True)
     color_hex: Mapped[str] = mapped_column(String(16))
     crop_url: Mapped[str] = mapped_column(String(500))
     tags: Mapped[dict] = mapped_column(JSON)
@@ -58,3 +61,12 @@ class ReuseRequest(Base):
     status: Mapped[str] = mapped_column(String(20), default="pending")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     scrap: Mapped[Scrap] = relationship(back_populates="requests")
+
+
+class Favorite(Base):
+    __tablename__ = "favorites"
+    __table_args__ = (UniqueConstraint("user_id", "scrap_id", name="uq_favorite_user_scrap"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    scrap_id: Mapped[int] = mapped_column(ForeignKey("scraps.id", ondelete="CASCADE"), index=True)

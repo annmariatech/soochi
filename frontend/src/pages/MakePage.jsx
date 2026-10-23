@@ -32,6 +32,7 @@ export default function MakePage() {
     Promise.all([getMyScraps(), getProducts()])
       .then(([mine, catalog]) => {
         setScraps(mine.map(toCardScrap))
+        setSelected(mine.map((scrap) => scrap.id))
         setProducts(catalog)
       })
       .catch((err) => setError(err.message))
@@ -102,7 +103,7 @@ export default function MakePage() {
       <span className="eyebrow">YOUR NEXT LITTLE PROJECT</span>
       <h1 className="page-title">What shall we make?</h1>
       <p className="page-lead">
-        Fit is calculated from centimetres, rotation, and leftover rectangles — not guessed.
+        Choose scraps to combine their usable fabric area for one product.
       </p>
 
       <div className="mode-tabs" role="tablist">
@@ -125,7 +126,7 @@ export default function MakePage() {
 
       {mode === "a" ? (
         <>
-          <p>Select scraps, then see which catalogue products they can cover.</p>
+          <p>All scraps in your basket are selected by default. Their usable areas are combined to check each product.</p>
           <div className="scrap-grid">
             {scraps.map((scrap) => (
               <ScrapCard
@@ -157,7 +158,9 @@ export default function MakePage() {
                 <p>{item.verdict.reason}</p>
                 <p className="fabric-type">{item.fabric_notes}</p>
                 <div className="tag-row">
-                  <span className="tag">{item.utilization_pct}% of selected area</span>
+                  <span className="tag">{item.utilization_pct}% of combined area</span>
+                  {item.available_area_cm2 != null && <span className="tag">{item.available_area_cm2} cm² available</span>}
+                  {item.required_area_cm2 != null && <span className="tag">~{item.required_area_cm2} cm² needed</span>}
                   {item.pieces.map((piece, index) => (
                     <span className="tag" key={`${item.product_id}-${index}`}>
                       {piece.qty} × {piece.w_cm}×{piece.h_cm} cm
