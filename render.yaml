@@ -4,14 +4,10 @@ services:
     runtime: python
     branch: main
     region: singapore
-    plan: 0.5c-512mb
+    plan: free
     buildCommand: pip install -r backend/requirements.txt
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
-    disk:
-      name: soochi-media
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.10
@@ -29,9 +25,7 @@ services:
           name: soochi-frontend
           envVarKey: RENDER_EXTERNAL_URL
       - key: SOOCHI_MEDIA_DIR
-        value: /var/data/media
-      - key: SOOCHI_CHROMA_PATH
-        value: /var/data/chroma
+        value: data/generated_media
 
   - type: web
     name: soochi-frontend
@@ -56,4 +50,4 @@ databases:
     databaseName: soochi
     user: soochi
     region: singapore
-    plan: 0.5c-1g
+    plan: free
