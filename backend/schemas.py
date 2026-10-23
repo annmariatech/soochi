@@ -19,6 +19,11 @@ class UserLogin(BaseModel):
     password: str
 
 
+class UserProfileUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    area_name: str | None = Field(default=None, min_length=1, max_length=160)
+
+
 class UserOut(BaseModel):
     id: int
     name: str
@@ -37,8 +42,12 @@ class AuthOut(BaseModel):
 
 class ScrapInput(BaseModel):
     temp_id: str
+    name: str = Field(default="Fabric scrap", max_length=160)
     width_cm: float = Field(gt=0)
     height_cm: float = Field(gt=0)
+    area_cm2: float | None = Field(default=None, gt=0)
+    shape_type: Literal["rectangle", "circle", "irregular"] = "rectangle"
+    radius_cm: float | None = Field(default=None, gt=0)
     color_hex: str
     crop_url: str
     tags: dict[str, Any]

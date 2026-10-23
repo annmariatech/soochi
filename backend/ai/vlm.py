@@ -1,6 +1,7 @@
 """Vision-language tagging for fabric scrap images using local Ollama."""
 
 import logging
+import os
 from typing import Literal
 
 import ollama
@@ -32,7 +33,7 @@ SAFE_DEFAULTS = ScrapTags(
 def tag_scrap(image_path: str) -> ScrapTags:
     """Tag one fabric image; return safe labels if Ollama or parsing fails."""
     try:
-        client = ollama.Client(timeout=20.0)
+        client = ollama.Client(host=os.getenv("OLLAMA_HOST"), timeout=20.0)
         response = client.chat(
             model="gemma3:4b",
             messages=[
