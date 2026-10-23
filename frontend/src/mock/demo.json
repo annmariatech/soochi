@@ -1,0 +1,203 @@
+
+{
+  "user": {
+    "id": 1,
+    "name": "Haaniah",
+    "contact": "9876543210",
+    "lat": 10.027,
+    "lng": 76.328,
+    "area_name": "Kalamassery"
+  },
+  "scraps": [
+    {
+      "id": 1,
+      "width_cm": 45,
+      "height_cm": 60,
+      "color_hex": "#D9879A",
+      "crop_url": "https://placehold.co/500x400/E9BCC7/754653?text=Pink+Cotton",
+      "tags": {
+        "fabric_type": "Cotton",
+        "stretch": "Low",
+        "weight": "Light",
+        "pattern": "Solid",
+        "dominant_color": "Dusty rose",
+        "defects": []
+      }
+    },
+    {
+      "id": 2,
+      "width_cm": 35,
+      "height_cm": 50,
+      "color_hex": "#83946A",
+      "crop_url": "https://placehold.co/500x400/D9DFC9/4D6040?text=Sage+Linen",
+      "tags": {
+        "fabric_type": "Linen",
+        "stretch": "None",
+        "weight": "Medium",
+        "pattern": "Solid",
+        "dominant_color": "Sage green",
+        "defects": []
+      }
+    },
+    {
+      "id": 3,
+      "width_cm": 55,
+      "height_cm": 40,
+      "color_hex": "#E0B66F",
+      "crop_url": "https://placehold.co/500x400/F0DDB4/80612C?text=Floral+Rayon",
+      "tags": {
+        "fabric_type": "Rayon",
+        "stretch": "Medium",
+        "weight": "Light",
+        "pattern": "Floral",
+        "dominant_color": "Mustard",
+        "defects": []
+      }
+    },
+    {
+      "id": 4,
+      "width_cm": 30,
+      "height_cm": 35,
+      "color_hex": "#9CBBC9",
+      "crop_url": "https://placehold.co/500x400/D4E5EA/426776?text=Blue+Cotton",
+      "tags": {
+        "fabric_type": "Cotton",
+        "stretch": "Low",
+        "weight": "Light",
+        "pattern": "Checked",
+        "dominant_color": "Powder blue",
+        "defects": []
+      }
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Scrunchie",
+      "size_label": "Standard",
+      "pieces": [
+        { "w_cm": 45, "h_cm": 12, "qty": 1 }
+      ],
+      "fabric_notes": "Soft cotton or rayon works well."
+    },
+    {
+      "id": 2,
+      "name": "Patchwork pouch",
+      "size_label": "Small",
+      "pieces": [
+        { "w_cm": 20, "h_cm": 25, "qty": 2 }
+      ],
+      "fabric_notes": "Use two pieces of similar weight."
+    },
+    {
+      "id": 3,
+      "name": "Reusable gift bag",
+      "size_label": "Small",
+      "pieces": [
+        { "w_cm": 30, "h_cm": 40, "qty": 1 }
+      ],
+      "fabric_notes": "Medium-weight fabric is ideal."
+    }
+  ],
+  "analyze": {
+    "annotated_image_url": "https://placehold.co/800x600/F8E8E8/754653?text=Fabric+Scan+Preview",
+    "scraps": [
+      {
+        "temp_id": "temp-1",
+        "width_cm": 45,
+        "height_cm": 60,
+        "color_hex": "#D9879A",
+        "polygon": [[20, 20], [470, 20], [470, 620], [20, 620]],
+        "crop_url": "https://placehold.co/500x400/E9BCC7/754653?text=Detected+Cotton",
+        "tags": {
+          "fabric_type": "Cotton",
+          "stretch": "Low",
+          "weight": "Light",
+          "pattern": "Solid",
+          "dominant_color": "Dusty rose",
+          "defects": []
+        }
+      }
+    ]
+  },
+  "productMatches": [
+    {
+      "product_id": 1,
+      "name": "Scrunchie",
+      "size_label": "Standard",
+      "utilization_pct": 30,
+      "verdict": {
+        "suitable": true,
+        "reason": "The selected fabric has enough usable area for this product."
+      },
+      "sources": [
+        { "id": "guide-1", "text": "Lightweight cotton works well for scrunchies." }
+      ]
+    },
+    {
+      "product_id": 2,
+      "name": "Patchwork pouch",
+      "size_label": "Small",
+      "utilization_pct": 42,
+      "verdict": {
+        "suitable": true,
+        "reason": "The available scraps can provide the required pieces."
+      },
+      "sources": [
+        { "id": "guide-2", "text": "Use compatible fabric weights for pouch panels." }
+      ]
+    }
+  ],
+  "customMatch": {
+    "matches": [
+      {
+        "scrap": {
+          "id": 1,
+          "width_cm": 45,
+          "height_cm": 60,
+          "color_hex": "#D9879A",
+          "crop_url": "https://placehold.co/500x400/E9BCC7/754653?text=Pink+Cotton",
+          "tags": {
+            "fabric_type": "Cotton",
+            "stretch": "Low",
+            "weight": "Light",
+            "pattern": "Solid",
+            "dominant_color": "Dusty rose",
+            "defects": []
+          }
+        },
+        "utilization_pct": 65,
+        "verdict": {
+          "suitable": true,
+          "reason": "This scrap fits the requested dimensions."
+        },
+        "sources": [
+          { "id": "guide-3", "text": "Check fabric dimensions before cutting." }
+        ]
+      }
+    ],
+    "shortage": null,
+    "nearby": [
+      {
+        "scrap": {
+          "id": 5,
+          "width_cm": 40,
+          "height_cm": 50,
+          "color_hex": "#C7B4D9",
+          "crop_url": "https://placehold.co/500x400/E0D5EA/59486C?text=Lavender+Cotton",
+          "tags": {
+            "fabric_type": "Cotton",
+            "stretch": "Low",
+            "weight": "Light",
+            "pattern": "Solid",
+            "dominant_color": "Lavender",
+            "defects": []
+          }
+        },
+        "owner_area": "Edappally",
+        "distance_km": 2.4
+      }
+    ]
+  },
+  "requests": []
+}
