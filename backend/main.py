@@ -1,14 +1,20 @@
 """Soochi API: persistent accounts/scraps/requests with fast-start mock analysis."""
 
+import base64
+import tempfile
+from pathlib import Path
+
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .ai.vlm import tag_scrap
 from .auth import create_access_token, get_current_user, hash_password, verify_password
 from .database import Base, engine, get_db
 from .models import ReuseRequest, Scrap, User
 from .schemas import AuthOut, ProductMatchInput, ProductOut, RequestCreate, RequestRespond, ScrapInput, ScrapOut, UserLogin, UserSignup
+from vision.detect import detect_scraps
 
 Base.metadata.create_all(bind=engine)
 
@@ -58,15 +64,30 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
 
 @app.post("/scraps/analyze")
 async def analyze_scrap(image: UploadFile = File(...), _user: User = Depends(get_current_user)):
-    return {
-        "annotated_image_url": f"/mock-media/{image.filename or 'scrap'}/annotated.jpg",
-        "scraps": [{
-            "temp_id": "mock-scrap-1", "width_cm": 32.0, "height_cm": 24.0,
-            "color_hex": "#4F7C70", "polygon": [[12, 18], [322, 18], [322, 248], [12, 248]],
-            "crop_url": f"/mock-media/{image.filename or 'scrap'}/crop-1.jpg",
-            "tags": {"fabric_type": "cotton", "stretch": "none", "weight": "medium", "pattern": "solid", "dominant_color": "sage green", "defects": []},
-        }],
-    }
+    image_bytes = await image.read()
+    detected = detect_scraps(image_bytes)
+    if not detected["success"]:
+        raise HTTPException(status_code=422, detail=detected["error"] or "Could not analyze image")
+
+    result_scraps = []
+    with tempfile.TemporaryDirectory(prefix="soochi-crops-") as temp_dir:
+        for index, scrap in enumerate(detected["scraps"]):
+            crop_path = Path(temp_dir) / f"scrap-{index}.png"
+            crop_path.write_bytes(scrap["crop_png"])
+            tags = tag_scrap(str(crop_path)).model_dump()
+            crop_url = "data:image/png;base64," + base64.b64encode(scrap["crop_png"]).decode("ascii")
+            result_scraps.append({
+                "temp_id": scrap["temp_id"],
+                "width_cm": scrap["width_cm"],
+                "height_cm": scrap["height_cm"],
+                "color_hex": scrap["color_hex"],
+                "polygon": scrap["polygon"],
+                "crop_url": crop_url,
+                "tags": tags,
+            })
+
+    annotated_url = "data:image/png;base64," + base64.b64encode(detected["annotated_image_png"]).decode("ascii")
+    return {"annotated_image_url": annotated_url, "scraps": result_scraps}
 
 
 @app.post("/scraps", response_model=list[ScrapOut], status_code=status.HTTP_201_CREATED)
