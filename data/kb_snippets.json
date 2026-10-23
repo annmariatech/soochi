@@ -1,0 +1,142 @@
+[
+  {
+    "id": "KB001",
+    "topic": "tote",
+    "text": "Tote bags need fabric that can support the intended load. Medium- to heavy-weight woven cotton, canvas, denim, or linen are common choices. Lightweight fabric may need a lining or reinforcement."
+  },
+  {
+    "id": "KB002",
+    "topic": "tote",
+    "text": "Use stable woven fabric for tote bodies and straps when possible. Stretch knits can distort under load; if using a knit, stabilize it and test the seams before construction."
+  },
+  {
+    "id": "KB003",
+    "topic": "tote",
+    "text": "Cut tote panels with their grainlines parallel to the fabric selvage unless the pattern specifies otherwise. Keeping the body and straps on grain helps reduce unwanted twisting and stretching."
+  },
+  {
+    "id": "KB004",
+    "topic": "tote",
+    "text": "Check the tote pattern for seam allowance. Add the stated allowance to each cut edge if pattern dimensions are finished measurements; do not add it twice if it is already included."
+  },
+  {
+    "id": "KB005",
+    "topic": "tote",
+    "text": "For printed tote fabric, place repeated or directional motifs consistently across the front and back panels. Matching a large motif can use extra fabric, so account for placement before deciding the scrap is large enough."
+  },
+  {
+    "id": "KB006",
+    "topic": "tote",
+    "text": "Lightweight or loosely woven tote fabric may benefit from fusible interfacing or a separate lining. Choose interfacing compatible with the fabric weight and test adhesion and drape on a small offcut."
+  },
+  {
+    "id": "KB007",
+    "topic": "tote",
+    "text": "Keep tote pattern pieces away from holes, stains that cannot be removed, thinning, severe fading, and frayed edges. Include damage-free seam allowance around the whole cut piece."
+  },
+  {
+    "id": "KB008",
+    "topic": "pouch",
+    "text": "Woven cotton, linen, denim, and light canvas are suitable for many pouches. Lightweight fabric can work when lined or interfaced; heavier fabric may need a suitable needle and zipper installation method."
+  },
+  {
+    "id": "KB009",
+    "topic": "pouch",
+    "text": "Stable woven fabric is usually easier to use around a pouch zipper. Stretch knits can ripple or stretch while sewing; stabilize zipper edges or choose a stretch-compatible construction."
+  },
+  {
+    "id": "KB010",
+    "topic": "pouch",
+    "text": "Place pouch panels with the pattern grainline parallel to the selvage unless the pattern gives another direction. Check the direction of one-way prints so motifs are upright on the finished pouch."
+  },
+  {
+    "id": "KB011",
+    "topic": "pouch",
+    "text": "Include the pattern's seam allowance when estimating pouch panel size. Leave room for zipper tabs, boxed corners, or gussets if those features are part of the design."
+  },
+  {
+    "id": "KB012",
+    "topic": "pouch",
+    "text": "A lining can protect the inside of a pouch and cover interfacing. Lightweight outer fabric may need lightweight fusible interfacing; test it on an offcut to check for bubbles, stiffness, or color changes."
+  },
+  {
+    "id": "KB013",
+    "topic": "pouch",
+    "text": "When pouch fabric has a prominent repeat or directional print, align the front and back motifs intentionally. Pattern matching may require extra fabric beyond the panel dimensions."
+  },
+  {
+    "id": "KB014",
+    "topic": "pouch",
+    "text": "Do not place pouch panels, zipper edges, or seam allowances over holes, weak spots, permanent stains, or fraying. A damaged area can be cut out only if enough usable fabric remains for every piece."
+  },
+  {
+    "id": "KB015",
+    "topic": "scrunchie",
+    "text": "Scrunchies can be made from woven cotton, lightweight linen, satin, or suitable knits. Slippery fabrics need careful handling; stretchy knits can be useful when their stretch and recovery suit the design."
+  },
+  {
+    "id": "KB016",
+    "topic": "scrunchie",
+    "text": "A scrunchie is a small project, so a lightweight or medium-weight fabric strip is generally easier to gather around elastic than very heavy fabric. Thick fabric can make bulky seams and gathers."
+  },
+  {
+    "id": "KB017",
+    "topic": "scrunchie",
+    "text": "For woven scrunchie fabric, cut the strip on grain for predictable behavior. A bias-cut strip has more give and can drape differently; use it only when that behavior is desired."
+  },
+  {
+    "id": "KB018",
+    "topic": "scrunchie",
+    "text": "Check whether the scrunchie pattern dimensions include seam allowance. Small pieces still need enough allowance to enclose the elastic and turn the tube without cutting into the seam."
+  },
+  {
+    "id": "KB019",
+    "topic": "scrunchie",
+    "text": "For a printed scrunchie, consider how much of the print will show after the strip is gathered. Large motifs may be obscured; small repeats or non-directional prints are easier to place."
+  },
+  {
+    "id": "KB020",
+    "topic": "scrunchie",
+    "text": "Avoid holes, weak or thinning fabric, stains that cannot be removed, and frayed edges when cutting a scrunchie strip. Keep the full seam allowance in sound fabric."
+  },
+  {
+    "id": "KB021",
+    "topic": "general",
+    "text": "Woven fabric is made from crossing lengthwise and crosswise yarns and usually stretches less along grain. Knits are looped and usually have more stretch. Identify the fabric structure before choosing a pattern and stitch."
+  },
+  {
+    "id": "KB022",
+    "topic": "general",
+    "text": "Fabric weight affects drape, bulk, and sewing difficulty. Lightweight fabric suits small or gathered items; medium weight is versatile; heavy fabric can provide structure but may create bulky seams. Match the weight to the product and machine."
+  },
+  {
+    "id": "KB023",
+    "topic": "general",
+    "text": "The grainline usually runs parallel to the selvage and lengthwise yarns. Place pattern grainline markings parallel to the selvage unless the pattern directs otherwise; off-grain pieces may twist or hang unevenly."
+  },
+  {
+    "id": "KB024",
+    "topic": "general",
+    "text": "Seam allowance is the fabric between the stitching line and cut edge. Check each pattern's instructions because dimensions may be given as cut sizes or finished sizes; add the specified allowance only when it is not already included."
+  },
+  {
+    "id": "KB025",
+    "topic": "general",
+    "text": "With a directional print, keep motifs upright and consistently oriented. With a repeat, match motifs at visible seams when practical. Matching prints can consume extra fabric, so include placement needs in the usable-size estimate."
+  },
+  {
+    "id": "KB026",
+    "topic": "general",
+    "text": "Interfacing adds support or stability. Choose its weight and type to suit the fabric and pattern, and follow its application instructions. Test a small scrap first because heat or adhesive can change texture, color, or drape."
+  },
+  {
+    "id": "KB027",
+    "topic": "general",
+    "text": "Inspect scraps before cutting. Avoid placing pattern pieces or seam allowances over holes, mold, contamination, severe thinning, permanent stains, or damaged edges. Measure only the continuous usable area that remains."
+  },
+  {
+    "id": "KB028",
+    "topic": "general",
+    "text": "Before sewing unfamiliar fabric, test the needle, stitch length, tension, and seam finish on an offcut. Use a compatible needle and stitch for the fabric structure and thickness."
+  }
+]
