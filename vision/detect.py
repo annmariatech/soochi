@@ -498,7 +498,9 @@ def detect_scraps(
     gray = cv2.cvtColor(rectified, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # Compare Otsu and adaptive thresholding, including both polarities.
+    # Compare Otsu and adaptive foreground masks. Inverting these masks makes
+    # the dark tabletop the foreground, which can enclose the paper and cloth
+    # as one giant false scrap.
     _, otsu = cv2.threshold(
         blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
     )
@@ -512,12 +514,14 @@ def detect_scraps(
         5,
     )
 
-    candidates = [
-        otsu,
-        cv2.bitwise_not(otsu),
-        adaptive,
-        cv2.bitwise_not(adaptive),
-    ]
+    hsv = cv2.cvtColor(rectified, cv2.COLOR_BGR2HSV)
+    saturation = hsv[:, :, 1]
+    value = hsv[:, :, 2]
+    chromatic = np.where(saturation >= 60, 255, 0).astype(np.uint8)
+    bright_neutral = np.where(
+        (value >= 175) & (saturation <= 55), 255, 0
+    ).astype(np.uint8)
+    candidates = [otsu, adaptive, chromatic, bright_neutral]
 
     # Exclude the A4 sheet from scrap detection.
     # For this initial version, scraps should be placed beside the paper.
@@ -539,11 +543,17 @@ def detect_scraps(
         for mask in candidates:
             mask[paper_mask > 0] = 0
 
-    # Choose the threshold with the most plausible usable contours.
-    best_score = 0
+    # Choose the foreground mask that explains the most coherent fabric area.
+    # Counting contours alone favors masks that split folds into many pieces.
+    best_score = 0.0
     best_mask = None
 
     for mask in candidates:
+        mask = cv2.morphologyEx(
+            mask,
+            cv2.MORPH_CLOSE,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)),
+        )
         contours, _ = cv2.findContours(
             mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
@@ -557,7 +567,7 @@ def detect_scraps(
             )
         ]
 
-        score = min(len(valid), 20)
+        score = sum(cv2.contourArea(contour) for contour in valid)
 
         if score > best_score:
             best_score = score
@@ -570,6 +580,12 @@ def detect_scraps(
             best_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
 
+        # Folds and shadows can survive thresholding as many small contours.
+        # Suppress fragments that are tiny relative to the largest fabric
+        # region; also reject hairline slivers, which are usually fold edges.
+        largest_area = max((cv2.contourArea(contour) for contour in contours), default=0)
+        min_region_area = max(min_area_px, largest_area * 0.05)
+
         # Sort by position to keep temporary IDs reasonably predictable.
         contours = sorted(
             contours,
@@ -580,7 +596,7 @@ def detect_scraps(
         for contour in contours:
             contour_area_px = cv2.contourArea(contour)
 
-            if contour_area_px < min_area_px:
+            if contour_area_px < min_region_area:
                 continue
 
             if _touches_image_border(contour, rectified.shape):
@@ -590,6 +606,9 @@ def detect_scraps(
             (_, _), (rw, rh), _ = rect
 
             if rw <= 0 or rh <= 0:
+                continue
+
+            if min(rw, rh) / pixels_per_cm < 1.0:
                 continue
 
             width_cm, height_cm = sorted(

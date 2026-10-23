@@ -1,11 +1,11 @@
 """Soochi API: persistent accounts/scraps/requests with fast-start mock analysis."""
 
-import base64
-import tempfile
 from pathlib import Path
+from uuid import uuid4
 
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -18,7 +18,11 @@ from vision.detect import detect_scraps
 
 Base.metadata.create_all(bind=engine)
 
+MEDIA_DIR = Path(__file__).resolve().parents[1] / "data" / "generated_media"
+MEDIA_DIR.mkdir(parents=True, exist_ok=True)
+
 app = FastAPI(title="Soochi API", version="0.1.0")
+app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -69,25 +73,29 @@ async def analyze_scrap(image: UploadFile = File(...), _user: User = Depends(get
     if not detected["success"]:
         raise HTTPException(status_code=422, detail=detected["error"] or "Could not analyze image")
 
-    result_scraps = []
-    with tempfile.TemporaryDirectory(prefix="soochi-crops-") as temp_dir:
-        for index, scrap in enumerate(detected["scraps"]):
-            crop_path = Path(temp_dir) / f"scrap-{index}.png"
-            crop_path.write_bytes(scrap["crop_png"])
-            tags = tag_scrap(str(crop_path)).model_dump()
-            crop_url = "data:image/png;base64," + base64.b64encode(scrap["crop_png"]).decode("ascii")
-            result_scraps.append({
-                "temp_id": scrap["temp_id"],
-                "width_cm": scrap["width_cm"],
-                "height_cm": scrap["height_cm"],
-                "color_hex": scrap["color_hex"],
-                "polygon": scrap["polygon"],
-                "crop_url": crop_url,
-                "tags": tags,
-            })
+    analysis_id = uuid4().hex[:12]
+    analysis_dir = MEDIA_DIR / analysis_id
+    analysis_dir.mkdir(parents=True, exist_ok=True)
+    annotated_path = analysis_dir / "annotated.png"
+    annotated_path.write_bytes(detected["annotated_image_png"])
 
-    annotated_url = "data:image/png;base64," + base64.b64encode(detected["annotated_image_png"]).decode("ascii")
-    return {"annotated_image_url": annotated_url, "scraps": result_scraps}
+    result_scraps = []
+    for scrap in detected["scraps"]:
+        crop_path = analysis_dir / f"{scrap['temp_id']}.png"
+        crop_path.write_bytes(scrap["crop_png"])
+        tags = tag_scrap(str(crop_path)).model_dump()
+        result_scraps.append({
+            "temp_id": scrap["temp_id"],
+            "width_cm": scrap["width_cm"],
+            "height_cm": scrap["height_cm"],
+            "dimensions_label": f"{scrap['width_cm']:.1f} × {scrap['height_cm']:.1f} cm",
+            "color_hex": scrap["color_hex"],
+            "polygon": scrap["polygon"],
+            "crop_url": f"/media/{analysis_id}/{crop_path.name}",
+            "tags": tags,
+        })
+
+    return {"annotated_image_url": f"/media/{analysis_id}/annotated.png", "scraps": result_scraps}
 
 
 @app.post("/scraps", response_model=list[ScrapOut], status_code=status.HTTP_201_CREATED)
