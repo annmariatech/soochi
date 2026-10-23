@@ -22,11 +22,7 @@ export default function AddScrapPage() {
     let active = true
     let stream
 
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setError("Camera access is unavailable in this browser. Upload an image instead.")
-      setCameraOpen(false)
-      return undefined
-    }
+    const videoElement = videoRef.current
 
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false })
@@ -36,7 +32,7 @@ export default function AddScrapPage() {
           return
         }
         stream = cameraStream
-        if (videoRef.current) videoRef.current.srcObject = cameraStream
+        if (videoElement) videoElement.srcObject = cameraStream
       })
       .catch(() => {
         setError("Could not open the camera. Allow camera access or upload an image.")
@@ -46,7 +42,7 @@ export default function AddScrapPage() {
     return () => {
       active = false
       stream?.getTracks().forEach((track) => track.stop())
-      if (videoRef.current) videoRef.current.srcObject = null
+      if (videoElement) videoElement.srcObject = null
     }
   }, [cameraOpen])
 
@@ -114,6 +110,9 @@ export default function AddScrapPage() {
           name: scrap.name || scrap.tags?.fabric_type || `Scrap ${index + 1}`,
           width_cm: scrap.width_cm ?? 0,
           height_cm: scrap.height_cm ?? 0,
+          area_cm2: scrap.area_cm2 ?? null,
+          shape_type: scrap.shape_type || "rectangle",
+          radius_cm: scrap.radius_cm ?? null,
           fabric_type: scrap.tags?.fabric_type ?? "Cotton",
           stretch: scrap.tags?.stretch ?? "None",
           weight: scrap.tags?.weight ?? "Medium",
@@ -134,7 +133,14 @@ export default function AddScrapPage() {
 
   function updateScrap(index, field, value) {
     setScraps((current) =>
-      current.map((scrap, i) => (i === index ? { ...scrap, [field]: value } : scrap)),
+      current.map((scrap, i) => {
+        if (i !== index) return scrap
+        if (field === "radius_cm") {
+          const radius = Number(value)
+          return { ...scrap, radius_cm: value, width_cm: radius > 0 ? radius * 2 : scrap.width_cm, height_cm: radius > 0 ? radius * 2 : scrap.height_cm, area_cm2: radius > 0 ? Number((Math.PI * radius ** 2).toFixed(2)) : scrap.area_cm2 }
+        }
+        return { ...scrap, [field]: value }
+      }),
     )
   }
 
@@ -155,6 +161,14 @@ export default function AddScrapPage() {
       setError("Enter a width and height greater than zero for every scrap.")
       return
     }
+    if (scraps.some((scrap) => scrap.shape_type === "irregular" && Number(scrap.area_cm2) <= 0)) {
+      setError("Enter an area greater than zero for every irregular scrap.")
+      return
+    }
+    if (scraps.some((scrap) => scrap.shape_type === "circle" && Number(scrap.radius_cm) <= 0)) {
+      setError("Enter a radius greater than zero for every circular scrap.")
+      return
+    }
     if (scraps.some((scrap) => !/^#([0-9A-Fa-f]{6})$/.test(scrap.color_hex))) {
       setError("Each colour needs a valid hex value.")
       return
@@ -164,10 +178,12 @@ export default function AddScrapPage() {
     setError("")
     try {
       await saveScraps(
-        scraps.map(({ temp_id: _tempId, ...scrap }) => ({
+        scraps.map((scrap) => ({
           ...scrap,
           width_cm: Number(scrap.width_cm),
           height_cm: Number(scrap.height_cm),
+          area_cm2: Number(scrap.area_cm2 || Number(scrap.width_cm) * Number(scrap.height_cm)),
+          radius_cm: scrap.radius_cm == null ? null : Number(scrap.radius_cm),
         })),
       )
       navigate("/inventory")
@@ -200,6 +216,10 @@ export default function AddScrapPage() {
             className="primary-button"
             onClick={() => {
               setError("")
+              if (!navigator.mediaDevices?.getUserMedia) {
+                setError("Camera access is unavailable in this browser. Upload an image instead.")
+                return
+              }
               setCameraOpen(true)
             }}
           >
@@ -309,6 +329,19 @@ export default function AddScrapPage() {
                     />
                   </label>
                 </div>
+                {scrap.shape_type === "circle" ? (
+                  <label>
+                    Radius (cm)
+                    <input type="number" min="0.1" step="0.1" value={scrap.radius_cm ?? ""} onChange={(event) => updateScrap(index, "radius_cm", event.target.value)} />
+                    <small>Area is calculated as π × radius² ({scrap.area_cm2 ?? "—"} cm²).</small>
+                  </label>
+                ) : scrap.shape_type === "irregular" ? (
+                  <label>
+                    Usable fabric area (cm²)
+                    <input type="number" min="0.1" step="0.1" value={scrap.area_cm2 ?? ""} onChange={(event) => updateScrap(index, "area_cm2", event.target.value)} />
+                    <small>Measured from the detected fabric outline; edit if needed.</small>
+                  </label>
+                ) : null}
                 <label>
                   Fabric type
                   <select

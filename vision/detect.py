@@ -692,6 +692,17 @@ def detect_scraps(
                 contour, max(1.0, 0.01 * perimeter), True
             )
 
+            # Base yield on the actual fabric outline, not its bounding box.
+            circularity = (4 * np.pi * contour_area_px / (perimeter**2)) if perimeter else 0
+            shape_type = "circle" if circularity >= 0.82 and abs(rw - rh) / max(rw, rh) <= 0.12 else (
+                "rectangle" if len(approx) == 4 else "irregular"
+            )
+            radius_cm = None
+            if shape_type == "circle":
+                (_, _), radius_px = cv2.minEnclosingCircle(contour)
+                radius_cm = radius_px / pixels_per_cm
+                area_cm2 = np.pi * radius_cm**2
+
             x, y, w, h = cv2.boundingRect(contour)
 
             color_hex = _dominant_color(
@@ -720,7 +731,7 @@ def detect_scraps(
                 annotated, [approx], -1, (0, 200, 0), 2
             )
 
-            label = f"{width_cm:.1f} x {height_cm:.1f} cm"
+            label = f"r {radius_cm:.1f} cm" if radius_cm is not None else f"{width_cm:.1f} x {height_cm:.1f} cm"
             label_x = max(0, x)
             label_y = max(20, y - 8)
 
@@ -740,6 +751,8 @@ def detect_scraps(
                 "width_cm": round(float(width_cm), 2),
                 "height_cm": round(float(height_cm), 2),
                 "area_cm2": round(float(area_cm2), 2),
+                "shape_type": shape_type,
+                "radius_cm": round(float(radius_cm), 2) if radius_cm is not None else None,
                 "color_hex": color_hex,
                 "polygon": polygon,
                 "crop_png": _encode_png(crop),

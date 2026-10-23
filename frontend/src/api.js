@@ -2,12 +2,11 @@ import seed from "./mock/demo.json"
 import { nearestArea, roundKm } from "./lib/scraps"
 
 const API_BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "")
-const DEFAULT_API_ORIGIN = "http://localhost:8000"
 const TOKEN_KEY = "soochi_token"
 const USER_KEY = "soochi_user"
 
 function apiOrigin() {
-  if (API_BASE.startsWith("/")) return DEFAULT_API_ORIGIN
+  if (API_BASE.startsWith("/")) return window.location.origin
   return new URL(API_BASE, window.location.origin).origin
 }
 
@@ -76,6 +75,16 @@ export function currentUser() {
   }
 }
 
+export async function updateProfile(data) {
+  const user = await request("/users/me", { body: data, method: "PATCH" })
+  localStorage.setItem(USER_KEY, JSON.stringify(user))
+  return user
+}
+
+export function getProfile() {
+  return request("/users/me")
+}
+
 export function isLoggedIn() {
   return Boolean(getToken() && currentUser())
 }
@@ -101,6 +110,9 @@ export async function saveScraps(scraps) {
     name: scrap.name,
     width_cm: Number(scrap.width_cm),
     height_cm: Number(scrap.height_cm),
+    area_cm2: scrap.area_cm2 == null ? null : Number(scrap.area_cm2),
+    shape_type: scrap.shape_type || "rectangle",
+    radius_cm: scrap.radius_cm == null ? null : Number(scrap.radius_cm),
     color_hex: scrap.color_hex,
     crop_url: scrap.crop_url || "",
     tags: {
@@ -122,6 +134,15 @@ export async function saveScraps(scraps) {
 export async function getMyScraps() {
   const scraps = await request("/scraps/mine")
   return scraps.map((scrap) => ({ ...scrap, crop_url: mediaUrl(scrap.crop_url) }))
+}
+
+export async function getFavourites() {
+  const items = await request("/favourites")
+  return items.map((item) => ({ ...item, crop_url: mediaUrl(item.crop_url) }))
+}
+
+export function setFavourite(scrapId, favourite) {
+  return request(`/favourites/${scrapId}`, { method: favourite ? "POST" : "DELETE" })
 }
 
 export function getProducts() {

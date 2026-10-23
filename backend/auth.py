@@ -12,7 +12,11 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from .models import User
 
-SECRET_KEY = os.getenv("SOOCHI_SECRET_KEY", "development-only-change-this-secret")
+SECRET_KEY = os.getenv("SOOCHI_SECRET_KEY")
+if not SECRET_KEY:
+    if os.getenv("SOOCHI_ENV", "development").lower() == "production":
+        raise RuntimeError("SOOCHI_SECRET_KEY must be set in production")
+    SECRET_KEY = "development-only-change-this-secret"
 ALGORITHM = "HS256"
 TOKEN_TTL_HOURS = 24 * 7
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

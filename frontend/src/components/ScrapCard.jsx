@@ -3,6 +3,8 @@ export default function ScrapCard({
   selectable = false,
   selected = false,
   onToggle,
+  favourited = false,
+  onFavourite,
   extra,
 }) {
   return (
@@ -26,13 +28,12 @@ export default function ScrapCard({
           </button>
         ) : (
           <button
-            className="heart-button"
-            aria-label={`Save ${scrap.name} as a favourite`}
-            onClick={(event) => {
-              event.currentTarget.classList.toggle("is-loved")
-            }}
+            className={`heart-button ${favourited ? "is-loved" : ""}`}
+            aria-pressed={favourited}
+            aria-label={`${favourited ? "Remove" : "Save"} ${scrap.name} ${favourited ? "from" : "to"} favourites`}
+            onClick={() => onFavourite?.(scrap.id, !favourited)}
           >
-            ♡
+            {favourited ? "♥" : "♡"}
           </button>
         )}
       </div>
@@ -52,8 +53,13 @@ export default function ScrapCard({
         </p>
 
         <div className="measurement">
-          <span>↔ {scrap.width ?? scrap.width_cm} cm</span>
-          <span>↕ {scrap.height ?? scrap.height_cm} cm</span>
+          {scrap.shape_type === "circle" && scrap.radius_cm ? (
+            <span>Radius {scrap.radius_cm} cm · Area {scrap.area_cm2} cm²</span>
+          ) : scrap.shape_type === "irregular" && scrap.area_cm2 ? (
+            <span>Area {scrap.area_cm2} cm² · {scrap.width ?? scrap.width_cm} × {scrap.height ?? scrap.height_cm} cm bounds</span>
+          ) : (
+            <><span>↔ {scrap.width ?? scrap.width_cm} cm</span><span>↕ {scrap.height ?? scrap.height_cm} cm</span></>
+          )}
         </div>
 
         <div className="tag-row">

@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from math import atan2, cos, radians, sin, sqrt
+import os
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
@@ -13,8 +14,8 @@ from sqlalchemy.orm import Session
 from .ai.vlm import tag_scrap
 from .auth import create_access_token, get_current_user, hash_password, verify_password
 from .database import Base, engine, get_db
-from .models import ReuseRequest, Scrap, User
-from .schemas import AuthOut, ProductMatchInput, ProductOut, RequestCreate, RequestRespond, ScrapInput, ScrapOut, UserLogin, UserSignup
+from .models import Favorite, ReuseRequest, Scrap, User
+from .schemas import AuthOut, ProductMatchInput, ProductOut, RequestCreate, RequestRespond, ScrapInput, ScrapOut, UserLogin, UserProfileUpdate, UserSignup
 from vision.detect import detect_scraps
 
 Base.metadata.create_all(bind=engine)
@@ -25,15 +26,31 @@ if "scraps" in inspect(engine).get_table_names() and "name" not in {
 }:
     with engine.begin() as connection:
         connection.execute(text("ALTER TABLE scraps ADD COLUMN name VARCHAR(160) NOT NULL DEFAULT 'Fabric scrap'"))
+if "scraps" in inspect(engine).get_table_names():
+    scrap_columns = {column["name"] for column in inspect(engine).get_columns("scraps")}
+    with engine.begin() as connection:
+        if "area_cm2" not in scrap_columns:
+            connection.execute(text("ALTER TABLE scraps ADD COLUMN area_cm2 FLOAT"))
+        if "shape_type" not in scrap_columns:
+            connection.execute(text("ALTER TABLE scraps ADD COLUMN shape_type VARCHAR(20) NOT NULL DEFAULT 'rectangle'"))
+        if "radius_cm" not in scrap_columns:
+            connection.execute(text("ALTER TABLE scraps ADD COLUMN radius_cm FLOAT"))
 
-MEDIA_DIR = Path(__file__).resolve().parents[1] / "data" / "generated_media"
+MEDIA_DIR = Path(os.getenv(
+    "SOOCHI_MEDIA_DIR",
+    Path(__file__).resolve().parents[1] / "data" / "generated_media",
+)).resolve()
 MEDIA_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="Soochi API", version="0.1.0")
 app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        origin.strip()
+        for origin in os.getenv("SOOCHI_CORS_ORIGINS", "http://localhost:5173").split(",")
+        if origin.strip()
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -74,9 +91,25 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
     return {"token": create_access_token(user.id), "user": user}
 
 
+@app.get("/users/me")
+def get_profile(user: User = Depends(get_current_user)):
+    return {"id": user.id, "name": user.name, "contact": user.contact, "lat": user.lat, "lng": user.lng, "area_name": user.area_name}
+
+
+@app.patch("/users/me")
+def update_profile(payload: UserProfileUpdate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(user, key, value)
+    db.commit()
+    db.refresh(user)
+    return {"id": user.id, "name": user.name, "contact": user.contact, "lat": user.lat, "lng": user.lng, "area_name": user.area_name}
+
+
 @app.post("/scraps/analyze")
 async def analyze_scrap(image: UploadFile = File(...), _user: User = Depends(get_current_user)):
-    image_bytes = await image.read()
+    image_bytes = await image.read(12 * 1024 * 1024 + 1)
+    if len(image_bytes) > 12 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Image must be 12 MB or smaller")
     detected = detect_scraps(image_bytes)
     if not detected["success"]:
         raise HTTPException(status_code=422, detail=detected["error"] or "Could not analyze image")
@@ -92,11 +125,20 @@ async def analyze_scrap(image: UploadFile = File(...), _user: User = Depends(get
         crop_path = analysis_dir / f"{scrap['temp_id']}.png"
         crop_path.write_bytes(scrap["crop_png"])
         tags = tag_scrap(str(crop_path)).model_dump()
+        if scrap["shape_type"] == "circle":
+            dimensions_label = f"Radius {scrap['radius_cm']:.1f} cm · Area {scrap['area_cm2']:.1f} cm²"
+        elif scrap["shape_type"] == "irregular":
+            dimensions_label = f"Area {scrap['area_cm2']:.1f} cm²"
+        else:
+            dimensions_label = f"{scrap['width_cm']:.1f} × {scrap['height_cm']:.1f} cm"
         result_scraps.append({
             "temp_id": scrap["temp_id"],
             "width_cm": scrap["width_cm"],
             "height_cm": scrap["height_cm"],
-            "dimensions_label": f"{scrap['width_cm']:.1f} × {scrap['height_cm']:.1f} cm",
+            "area_cm2": scrap["area_cm2"],
+            "shape_type": scrap["shape_type"],
+            "radius_cm": scrap["radius_cm"],
+            "dimensions_label": dimensions_label,
             "color_hex": scrap["color_hex"],
             "polygon": scrap["polygon"],
             "crop_url": f"/media/{analysis_id}/{crop_path.name}",
@@ -141,21 +183,59 @@ def nearby_scraps(db: Session = Depends(get_db), user: User = Depends(get_curren
             "scrap": {
                 "id": scrap.id, "owner_id": scrap.owner_id, "temp_id": scrap.temp_id,
                 "name": scrap.name, "width_cm": scrap.width_cm, "height_cm": scrap.height_cm,
+                "area_cm2": scrap.area_cm2, "shape_type": scrap.shape_type, "radius_cm": scrap.radius_cm,
                 "color_hex": scrap.color_hex, "crop_url": scrap.crop_url, "tags": scrap.tags,
             },
             "owner_name": owner.name,
             "owner_area": owner.area_name,
             "distance_km": round(distance, 1),
+            # Approximate map locations at neighborhood granularity; never expose stored GPS coordinates.
+            "map_location": {"lat": round(owner.lat, 2), "lng": round(owner.lng, 2)},
         })
     return sorted(listings, key=lambda listing: listing["distance_km"])
 
 
 @app.post("/match/scraps-to-products")
-def match_scraps_to_products(_payload: dict, _user: User = Depends(get_current_user)):
-    return [
-        {"product_id": 2, "name": "Zip Pouch", "size_label": "Small", "utilization_pct": 78, "verdict": {"suitable": True, "reason": "The selected scraps cover the pouch panels with room for seam allowance."}, "sources": MOCK_SOURCES[:1]},
-        {"product_id": 1, "name": "Patchwork Tote Bag", "size_label": "Medium", "utilization_pct": 46, "verdict": {"suitable": False, "reason": "More fabric is needed for the tote body and straps."}, "sources": MOCK_SOURCES},
-    ]
+def match_scraps_to_products(payload: dict, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    ids = {int(value) for value in payload.get("scrap_ids", []) if str(value).isdigit()}
+    scraps = list(db.scalars(select(Scrap).where(Scrap.owner_id == user.id, Scrap.id.in_(ids)))) if ids else []
+    available_area = sum(scrap.area_cm2 if scrap.area_cm2 is not None else scrap.width_cm * scrap.height_cm for scrap in scraps)
+    results = []
+    for product in MOCK_PRODUCTS:
+        needed_area = sum(piece["w_cm"] * piece["h_cm"] * piece["qty"] for piece in product["pieces"])
+        suitable = available_area >= needed_area
+        results.append({
+            "product_id": product["id"], "name": product["name"], "size_label": product["size_label"],
+            "pieces": product["pieces"], "fabric_notes": product["fabric_notes"],
+            "selected_scrap_count": len(scraps),
+            "available_area_cm2": round(available_area, 1), "required_area_cm2": round(needed_area, 1),
+            "utilization_pct": min(100, round(needed_area / available_area * 100)) if available_area else 0,
+            "verdict": {"suitable": suitable, "reason": f"Combined area of {len(scraps)} selected scrap(s) is {available_area:.0f} cm²; this product needs about {needed_area:.0f} cm²."},
+            "sources": MOCK_SOURCES[:1],
+        })
+    return results
+
+
+@app.get("/favourites", response_model=list[ScrapOut])
+def list_favourites(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    return list(db.scalars(select(Scrap).join(Favorite, Favorite.scrap_id == Scrap.id).where(Favorite.user_id == user.id).order_by(Favorite.id.desc())))
+
+
+@app.post("/favourites/{scrap_id}", status_code=status.HTTP_204_NO_CONTENT)
+def add_favourite(scrap_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    if db.get(Scrap, scrap_id) is None:
+        raise HTTPException(status_code=404, detail="Scrap not found")
+    if not db.scalar(select(Favorite).where(Favorite.user_id == user.id, Favorite.scrap_id == scrap_id)):
+        db.add(Favorite(user_id=user.id, scrap_id=scrap_id))
+        db.commit()
+
+
+@app.delete("/favourites/{scrap_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_favourite(scrap_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    favorite = db.scalar(select(Favorite).where(Favorite.user_id == user.id, Favorite.scrap_id == scrap_id))
+    if favorite:
+        db.delete(favorite)
+        db.commit()
 
 
 @app.post("/match/product-to-scraps")

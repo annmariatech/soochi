@@ -1216,6 +1216,32 @@ img.uploaded-photo {
   margin-bottom: 24px;
 }
 
+.nearby-map {
+  margin: 0 0 24px;
+  overflow: hidden;
+  border: 1px solid #e5d8c6;
+  border-radius: 14px;
+  background: #fffdf8;
+}
+
+.nearby-map .leaflet-container {
+  height: 340px;
+  width: 100%;
+  z-index: 0;
+}
+
+.map-caption {
+  margin: 8px 12px;
+  color: #796f61;
+  font-size: 12px;
+}
+
+.profile-form { display: grid; gap: 14px; max-width: 560px; }
+.profile-logout { margin-top: 18px; }
+
+.bottom-nav { overflow-x: auto; }
+.nav-item { min-width: 64px; }
+
 .nearby-meta {
   margin-top: 12px;
 }

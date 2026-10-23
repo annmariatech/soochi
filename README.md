@@ -165,3 +165,8 @@ npm run build
 The backend API exposes OpenAPI docs at `/docs` when running. Location in
 nearby and request responses is area-level only; owner contact is revealed to
 requesters only after approval.
+
+## Public deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the Render Blueprint, persistent data
+configuration, AI endpoint setup, and deployment checks.

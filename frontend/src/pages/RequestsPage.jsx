@@ -70,7 +70,13 @@ export default function RequestsPage() {
   }
 
   useEffect(() => {
-    load().catch((err) => setError(err.message))
+    void (async () => {
+      try {
+        await load()
+      } catch (err) {
+        setError(err.message)
+      }
+    })()
   }, [])
 
   async function onRespond(id, action) {

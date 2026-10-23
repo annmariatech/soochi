@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import ScrapCard from "../components/ScrapCard"
-import { getMyScraps } from "../api"
+import { getFavourites, getMyScraps, setFavourite } from "../api"
 import { toCardScrap } from "../lib/scraps"
 
 export default function InventoryPage() {
@@ -10,12 +10,16 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState("All")
   const [error, setError] = useState("")
+  const [favouriteIds, setFavouriteIds] = useState(new Set())
 
   useEffect(() => {
     let active = true
-    getMyScraps()
-      .then((items) => {
-        if (active) setScraps(items.map(toCardScrap))
+    Promise.all([getMyScraps(), getFavourites()])
+      .then(([items, favourites]) => {
+        if (active) {
+          setScraps(items.map(toCardScrap))
+          setFavouriteIds(new Set(favourites.map((item) => item.id)))
+        }
       })
       .catch((err) => {
         if (active) setError(err.message)
@@ -24,6 +28,17 @@ export default function InventoryPage() {
       active = false
     }
   }, [])
+
+  async function toggleFavourite(id, favourite) {
+    try {
+      await setFavourite(id, favourite)
+      setFavouriteIds((ids) => {
+        const next = new Set(ids)
+        favourite ? next.add(id) : next.delete(id)
+        return next
+      })
+    } catch (err) { setError(err.message) }
+  }
 
   const types = useMemo(() => {
     const unique = [...new Set(scraps.map((scrap) => scrap.type).filter(Boolean))]
@@ -122,7 +137,7 @@ export default function InventoryPage() {
 
         <div className="scrap-grid">
           {filteredScraps.map((scrap) => (
-            <ScrapCard key={scrap.id} scrap={scrap} />
+            <ScrapCard key={scrap.id} scrap={scrap} favourited={favouriteIds.has(scrap.id)} onFavourite={toggleFavourite} />
           ))}
         </div>
 
