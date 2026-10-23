@@ -1,19 +1,54 @@
-
 {
-  "user": {
-    "id": 1,
-    "name": "Haaniah",
-    "contact": "9876543210",
-    "lat": 10.027,
-    "lng": 76.328,
-    "area_name": "Kalamassery"
-  },
+  "areas": [
+    { "name": "Kalamassery", "lat": 10.027, "lng": 76.328 },
+    { "name": "Edappally", "lat": 10.026, "lng": 76.308 },
+    { "name": "Palarivattom", "lat": 10.015, "lng": 76.311 },
+    { "name": "Kakkanad", "lat": 10.015, "lng": 76.342 },
+    { "name": "Aluva", "lat": 10.107, "lng": 76.351 }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Haaniah",
+      "contact": "9876543210",
+      "area_name": "Kalamassery",
+      "lat": 10.027,
+      "lng": 76.328
+    },
+    {
+      "id": 2,
+      "name": "Meera",
+      "contact": "9123456780",
+      "area_name": "Edappally",
+      "lat": 10.026,
+      "lng": 76.308
+    },
+    {
+      "id": 3,
+      "name": "Arun",
+      "contact": "9988776655",
+      "area_name": "Palarivattom",
+      "lat": 10.015,
+      "lng": 76.311
+    },
+    {
+      "id": 4,
+      "name": "Leela",
+      "contact": "9001122334",
+      "area_name": "Kakkanad",
+      "lat": 10.015,
+      "lng": 76.342
+    }
+  ],
   "scraps": [
     {
       "id": 1,
+      "owner_id": 1,
+      "name": "Rosie",
       "width_cm": 45,
       "height_cm": 60,
       "color_hex": "#D9879A",
+      "color_name": "Dusty rose",
       "crop_url": "https://placehold.co/500x400/E9BCC7/754653?text=Pink+Cotton",
       "tags": {
         "fabric_type": "Cotton",
@@ -26,9 +61,12 @@
     },
     {
       "id": 2,
+      "owner_id": 1,
+      "name": "Olive",
       "width_cm": 35,
       "height_cm": 50,
       "color_hex": "#83946A",
+      "color_name": "Sage green",
       "crop_url": "https://placehold.co/500x400/D9DFC9/4D6040?text=Sage+Linen",
       "tags": {
         "fabric_type": "Linen",
@@ -41,9 +79,12 @@
     },
     {
       "id": 3,
+      "owner_id": 1,
+      "name": "Sunny",
       "width_cm": 55,
       "height_cm": 40,
       "color_hex": "#E0B66F",
+      "color_name": "Mustard",
       "crop_url": "https://placehold.co/500x400/F0DDB4/80612C?text=Floral+Rayon",
       "tags": {
         "fabric_type": "Rayon",
@@ -56,9 +97,12 @@
     },
     {
       "id": 4,
+      "owner_id": 1,
+      "name": "Cloudy",
       "width_cm": 30,
       "height_cm": 35,
       "color_hex": "#9CBBC9",
+      "color_name": "Powder blue",
       "crop_url": "https://placehold.co/500x400/D4E5EA/426776?text=Blue+Cotton",
       "tags": {
         "fabric_type": "Cotton",
@@ -68,6 +112,78 @@
         "dominant_color": "Powder blue",
         "defects": []
       }
+    },
+    {
+      "id": 101,
+      "owner_id": 2,
+      "name": "Lavender",
+      "width_cm": 40,
+      "height_cm": 50,
+      "color_hex": "#C7B4D9",
+      "color_name": "Lavender",
+      "crop_url": "https://placehold.co/500x400/E0D5EA/59486C?text=Lavender+Cotton",
+      "tags": {
+        "fabric_type": "Cotton",
+        "stretch": "Low",
+        "weight": "Light",
+        "pattern": "Solid",
+        "dominant_color": "Lavender",
+        "defects": []
+      }
+    },
+    {
+      "id": 102,
+      "owner_id": 3,
+      "name": "Indigo",
+      "width_cm": 60,
+      "height_cm": 40,
+      "color_hex": "#4A6B8A",
+      "color_name": "Indigo",
+      "crop_url": "https://placehold.co/500x400/C5D4E2/31485C?text=Indigo+Denim",
+      "tags": {
+        "fabric_type": "Denim",
+        "stretch": "Low",
+        "weight": "Heavy",
+        "pattern": "Solid",
+        "dominant_color": "Indigo",
+        "defects": []
+      }
+    },
+    {
+      "id": 103,
+      "owner_id": 4,
+      "name": "Pearl",
+      "width_cm": 25,
+      "height_cm": 30,
+      "color_hex": "#E8D9C4",
+      "color_name": "Cream",
+      "crop_url": "https://placehold.co/500x400/F3E8D8/7A684C?text=Cream+Silk",
+      "tags": {
+        "fabric_type": "Silk",
+        "stretch": "None",
+        "weight": "Light",
+        "pattern": "Solid",
+        "dominant_color": "Cream",
+        "defects": []
+      }
+    },
+    {
+      "id": 104,
+      "owner_id": 2,
+      "name": "Clay",
+      "width_cm": 50,
+      "height_cm": 55,
+      "color_hex": "#C4785A",
+      "color_name": "Terracotta",
+      "crop_url": "https://placehold.co/500x400/E8C4B4/6B3E2E?text=Terracotta+Linen",
+      "tags": {
+        "fabric_type": "Linen",
+        "stretch": "None",
+        "weight": "Medium",
+        "pattern": "Striped",
+        "dominant_color": "Terracotta",
+        "defects": []
+      }
     }
   ],
   "products": [
@@ -75,129 +191,117 @@
       "id": 1,
       "name": "Scrunchie",
       "size_label": "Standard",
-      "pieces": [
-        { "w_cm": 45, "h_cm": 12, "qty": 1 }
-      ],
+      "pieces": [{ "w_cm": 45, "h_cm": 12, "qty": 1 }],
       "fabric_notes": "Soft cotton or rayon works well."
     },
     {
       "id": 2,
       "name": "Patchwork pouch",
       "size_label": "Small",
-      "pieces": [
-        { "w_cm": 20, "h_cm": 25, "qty": 2 }
-      ],
+      "pieces": [{ "w_cm": 20, "h_cm": 25, "qty": 2 }],
       "fabric_notes": "Use two pieces of similar weight."
     },
     {
       "id": 3,
       "name": "Reusable gift bag",
       "size_label": "Small",
-      "pieces": [
-        { "w_cm": 30, "h_cm": 40, "qty": 1 }
-      ],
+      "pieces": [{ "w_cm": 30, "h_cm": 40, "qty": 1 }],
       "fabric_notes": "Medium-weight fabric is ideal."
+    },
+    {
+      "id": 4,
+      "name": "Headband",
+      "size_label": "Adult",
+      "pieces": [{ "w_cm": 50, "h_cm": 8, "qty": 1 }],
+      "fabric_notes": "Light fabrics with a little give feel nicest."
+    },
+    {
+      "id": 5,
+      "name": "Coaster set",
+      "size_label": "Set of 4",
+      "pieces": [{ "w_cm": 12, "h_cm": 12, "qty": 4 }],
+      "fabric_notes": "Leftover squares and sturdy weaves are perfect."
+    },
+    {
+      "id": 6,
+      "name": "Mini tote",
+      "size_label": "Petite",
+      "pieces": [
+        { "w_cm": 32, "h_cm": 36, "qty": 2 },
+        { "w_cm": 8, "h_cm": 30, "qty": 2 }
+      ],
+      "fabric_notes": "Medium or heavy fabric holds the shape."
+    },
+    {
+      "id": 7,
+      "name": "Needle book",
+      "size_label": "Pocket",
+      "pieces": [{ "w_cm": 18, "h_cm": 22, "qty": 1 }],
+      "fabric_notes": "A small sturdy scrap is enough."
     }
   ],
   "analyze": {
     "annotated_image_url": "https://placehold.co/800x600/F8E8E8/754653?text=Fabric+Scan+Preview",
+    "marker_found": true,
     "scraps": [
       {
         "temp_id": "temp-1",
-        "width_cm": 45,
-        "height_cm": 60,
-        "color_hex": "#D9879A",
-        "polygon": [[20, 20], [470, 20], [470, 620], [20, 620]],
-        "crop_url": "https://placehold.co/500x400/E9BCC7/754653?text=Detected+Cotton",
+        "name": "Blush",
+        "width_cm": 42,
+        "height_cm": 38,
+        "color_hex": "#E4A3B0",
+        "color_name": "Blush pink",
+        "polygon": [[18, 22], [440, 20], [442, 400], [16, 398]],
+        "crop_url": "https://placehold.co/500x400/F0C9D2/754653?text=Detected+Cotton",
         "tags": {
           "fabric_type": "Cotton",
           "stretch": "Low",
           "weight": "Light",
           "pattern": "Solid",
-          "dominant_color": "Dusty rose",
+          "dominant_color": "Blush pink",
+          "defects": []
+        }
+      },
+      {
+        "temp_id": "temp-2",
+        "name": "Fern",
+        "width_cm": 28,
+        "height_cm": 46,
+        "color_hex": "#7F9A6A",
+        "color_name": "Fern",
+        "polygon": [[460, 24], [740, 28], [736, 490], [458, 486]],
+        "crop_url": "https://placehold.co/500x400/D5E0C6/4D6040?text=Detected+Linen",
+        "tags": {
+          "fabric_type": "Linen",
+          "stretch": "None",
+          "weight": "Medium",
+          "pattern": "Checked",
+          "dominant_color": "Fern",
           "defects": []
         }
       }
     ]
   },
-  "productMatches": [
+  "requests": [
     {
-      "product_id": 1,
-      "name": "Scrunchie",
-      "size_label": "Standard",
-      "utilization_pct": 30,
-      "verdict": {
-        "suitable": true,
-        "reason": "The selected fabric has enough usable area for this product."
-      },
-      "sources": [
-        { "id": "guide-1", "text": "Lightweight cotton works well for scrunchies." }
-      ]
+      "id": 1,
+      "scrap_id": 4,
+      "owner_id": 1,
+      "requester_id": 2,
+      "requester_name": "Meera",
+      "requester_area": "Edappally",
+      "owner_contact": null,
+      "status": "pending"
     },
     {
-      "product_id": 2,
-      "name": "Patchwork pouch",
-      "size_label": "Small",
-      "utilization_pct": 42,
-      "verdict": {
-        "suitable": true,
-        "reason": "The available scraps can provide the required pieces."
-      },
-      "sources": [
-        { "id": "guide-2", "text": "Use compatible fabric weights for pouch panels." }
-      ]
+      "id": 2,
+      "scrap_id": 103,
+      "owner_id": 4,
+      "requester_id": 1,
+      "requester_name": "Haaniah",
+      "requester_area": "Kalamassery",
+      "owner_contact": "9001122334",
+      "status": "approved"
     }
-  ],
-  "customMatch": {
-    "matches": [
-      {
-        "scrap": {
-          "id": 1,
-          "width_cm": 45,
-          "height_cm": 60,
-          "color_hex": "#D9879A",
-          "crop_url": "https://placehold.co/500x400/E9BCC7/754653?text=Pink+Cotton",
-          "tags": {
-            "fabric_type": "Cotton",
-            "stretch": "Low",
-            "weight": "Light",
-            "pattern": "Solid",
-            "dominant_color": "Dusty rose",
-            "defects": []
-          }
-        },
-        "utilization_pct": 65,
-        "verdict": {
-          "suitable": true,
-          "reason": "This scrap fits the requested dimensions."
-        },
-        "sources": [
-          { "id": "guide-3", "text": "Check fabric dimensions before cutting." }
-        ]
-      }
-    ],
-    "shortage": null,
-    "nearby": [
-      {
-        "scrap": {
-          "id": 5,
-          "width_cm": 40,
-          "height_cm": 50,
-          "color_hex": "#C7B4D9",
-          "crop_url": "https://placehold.co/500x400/E0D5EA/59486C?text=Lavender+Cotton",
-          "tags": {
-            "fabric_type": "Cotton",
-            "stretch": "Low",
-            "weight": "Light",
-            "pattern": "Solid",
-            "dominant_color": "Lavender",
-            "defects": []
-          }
-        },
-        "owner_area": "Edappally",
-        "distance_km": 2.4
-      }
-    ]
-  },
-  "requests": []
+  ]
 }

@@ -1,1 +1,10 @@
-Soochi is a fabric scrap reuse platform that helps tailors and designers discover creative uses for leftover fabric, find suitable scraps nearby, and collaborate to reduce textile waste.
+# Soochi frontend
+
+React + Vite demo for Soochi. All features use in-browser mock data (`src/mock/demo.json` and `src/mock/store.js`). Matching math lives in `src/lib/matching.js`.
+
+```bash
+npm install
+npm run dev
+```
+
+Log in with contact `9876543210`. See the root README for the full walkthrough.
