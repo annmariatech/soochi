@@ -401,9 +401,6 @@ input:focus-visible {
 }
 
 .heart-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   width: 34px;
   height: 34px;
   border: 0;
@@ -411,6 +408,31 @@ input:focus-visible {
   background: #fff9efed;
   color: var(--rose);
   font-size: 22px;
+}
+
+.scrap-card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  gap: 7px;
+}
+
+.scrap-delete-button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e7d9c6;
+  border-radius: 50%;
+  background: #fff9efed;
+  color: #a83f5b;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scrap-delete-button:hover {
+  background: #a83f5b;
+  color: white;
 }
 
 .heart-button.is-loved {
@@ -1238,6 +1260,13 @@ img.uploaded-photo {
 
 .profile-form { display: grid; gap: 14px; max-width: 560px; }
 .profile-logout { margin-top: 18px; }
+.profile-preferences { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 20px; }
+.profile-preferences h2 { margin: 0 0 5px; font-family: 'Playfair Display', serif; }
+.profile-preferences p { margin: 0; color: var(--muted); font-size: 13px; }
+.profile-favourites { margin-top: 34px; }
+.profile-favourites .section-heading { margin-bottom: 4px; }
+.upload-image-button { box-shadow: 3px 4px 0 #dca0af; transition: transform 150ms ease, box-shadow 150ms ease; }
+.upload-image-button:hover { transform: translate(-1px, -1px); box-shadow: 5px 6px 0 #dca0af; }
 
 .bottom-nav { overflow-x: auto; }
 .nav-item { min-width: 64px; }
@@ -1278,4 +1307,152 @@ img.uploaded-photo {
     padding-left: 4%;
     padding-right: 4%;
   }
+
+  .profile-preferences { align-items: flex-start; flex-direction: column; }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #1b201d;
+  --pink: #432d35;
+  --rose: #d96883;
+  --dark-rose: #f09aae;
+  --olive: #a5b878;
+  --ink: #eee8de;
+  --muted: #bcb2a5;
+  --line: #45443d;
+}
+
+:root[data-theme="dark"] body {
+  background-color: #141816;
+  background-image: radial-gradient(#3c413c 0.5px, transparent 0.5px);
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] .gingham {
+  background-color: #292124;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 17px, #49323a 17px 34px),
+    repeating-linear-gradient(90deg, transparent 0 17px, #49323a 17px 34px);
+}
+
+:root[data-theme="dark"] .site-header,
+:root[data-theme="dark"] .scrap-card,
+:root[data-theme="dark"] .promo-inner,
+:root[data-theme="dark"] .other-inner,
+:root[data-theme="dark"] .add-step-card,
+:root[data-theme="dark"] .detected-card,
+:root[data-theme="dark"] .result-card,
+:root[data-theme="dark"] .nearby-map,
+:root[data-theme="dark"] .search-box,
+:root[data-theme="dark"] .filter-chip {
+  background: #222824;
+  border-color: #45483f;
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] .scrap-card,
+:root[data-theme="dark"] .add-step-card,
+:root[data-theme="dark"] .detected-card,
+:root[data-theme="dark"] .result-card {
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme="dark"] .hero-paper,
+:root[data-theme="dark"] .site-header {
+  border-color: #45483f;
+}
+
+:root[data-theme="dark"] .search-box input,
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+  background-color: #171c19;
+  border-color: #55564c;
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: #a49a8e;
+}
+
+:root[data-theme="dark"] .bottom-nav {
+  border-color: #45483f;
+  background: rgba(27, 32, 29, 0.94);
+}
+
+:root[data-theme="dark"] .nav-item {
+  color: #b9b1a6;
+}
+
+:root[data-theme="dark"] .nav-item.selected,
+:root[data-theme="dark"] .filter-chip.active {
+  background: #49313a;
+  border-color: #9a5065;
+  color: #ffd5df;
+}
+
+:root[data-theme="dark"] .collection-note,
+:root[data-theme="dark"] .status-note,
+:root[data-theme="dark"] .tag,
+:root[data-theme="dark"] .location-box {
+  background: #30372d;
+  color: #d4dfbd;
+}
+
+:root[data-theme="dark"] .photo-label,
+:root[data-theme="dark"] .heart-button,
+:root[data-theme="dark"] .scrap-delete-button {
+  background: rgba(27, 32, 29, 0.94);
+  color: #f09aae;
+}
+
+:root[data-theme="dark"] .heart-button.is-loved,
+:root[data-theme="dark"] .scrap-delete-button:hover {
+  background: var(--rose);
+  color: white;
+}
+
+:root[data-theme="dark"] .scrap-delete-button {
+  border-color: #55564c;
+}
+
+:root[data-theme="dark"] .measurement {
+  border-color: #4a4d43;
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] .add-step-card h2,
+:root[data-theme="dark"] .detected-section h2,
+:root[data-theme="dark"] .add-step-card p,
+:root[data-theme="dark"] .detected-section > p,
+:root[data-theme="dark"] .page-lead,
+:root[data-theme="dark"] .empty-copy,
+:root[data-theme="dark"] .map-caption,
+:root[data-theme="dark"] .nearby-meta p,
+:root[data-theme="dark"] .annotated-preview figcaption {
+  color: var(--muted);
+}
+
+:root[data-theme="dark"] .error-note {
+  background: #422b29;
+  border-color: #744740;
+  color: #ffc0b3;
+}
+
+:root[data-theme="dark"] .success-note {
+  background: #29372a;
+  border-color: #435c42;
+  color: #c3dfb5;
+}
+
+:root[data-theme="dark"] .camera-preview {
+  background: #202622;
+  border-color: #45483f;
+}
+
+:root[data-theme="dark"] .photo-picker {
+  background: #252a26;
+  color: var(--muted);
 }

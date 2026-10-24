@@ -136,6 +136,10 @@ export async function getMyScraps() {
   return scraps.map((scrap) => ({ ...scrap, crop_url: mediaUrl(scrap.crop_url) }))
 }
 
+export function deleteScrap(scrapId) {
+  return request(`/scraps/${scrapId}`, { method: "DELETE" })
+}
+
 export async function getFavourites() {
   const items = await request("/favourites")
   return items.map((item) => ({ ...item, crop_url: mediaUrl(item.crop_url) }))
