@@ -227,7 +227,7 @@ export default function AddScrapPage() {
           </button>
           <button
             type="button"
-            className="add-button"
+            className="add-button upload-image-button"
             onClick={() => uploadInputRef.current?.click()}
           >
             Upload an image

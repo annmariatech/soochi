@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import ScrapCard from "../components/ScrapCard"
-import { getFavourites, getMyScraps, setFavourite } from "../api"
+import { deleteScrap, getFavourites, getMyScraps, setFavourite } from "../api"
 import { toCardScrap } from "../lib/scraps"
 
 export default function InventoryPage() {
@@ -10,6 +10,7 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState("All")
   const [error, setError] = useState("")
+  const [notice, setNotice] = useState("")
   const [favouriteIds, setFavouriteIds] = useState(new Set())
 
   useEffect(() => {
@@ -37,6 +38,23 @@ export default function InventoryPage() {
         favourite ? next.add(id) : next.delete(id)
         return next
       })
+    } catch (err) { setError(err.message) }
+  }
+
+  async function removeScrap(id) {
+    const scrap = scraps.find((item) => item.id === id)
+    if (!scrap || !window.confirm(`Delete “${scrap.name}” from your scraps? This cannot be undone.`)) return
+    setError("")
+    setNotice("")
+    try {
+      await deleteScrap(id)
+      setScraps((items) => items.filter((item) => item.id !== id))
+      setFavouriteIds((ids) => {
+        const next = new Set(ids)
+        next.delete(id)
+        return next
+      })
+      setNotice("Scrap deleted.")
     } catch (err) { setError(err.message) }
   }
 
@@ -123,6 +141,7 @@ export default function InventoryPage() {
         </div>
 
         {error && <p className="error-note">{error}</p>}
+        {notice && <p className="success-note">{notice}</p>}
 
         <div className="collection-note">
           <span className="note-flower" aria-hidden="true">
@@ -137,7 +156,7 @@ export default function InventoryPage() {
 
         <div className="scrap-grid">
           {filteredScraps.map((scrap) => (
-            <ScrapCard key={scrap.id} scrap={scrap} favourited={favouriteIds.has(scrap.id)} onFavourite={toggleFavourite} />
+            <ScrapCard key={scrap.id} scrap={scrap} favourited={favouriteIds.has(scrap.id)} onFavourite={toggleFavourite} onDelete={removeScrap} />
           ))}
         </div>
 

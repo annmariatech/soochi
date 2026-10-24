@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { currentUser, logout } from "../api"
 
@@ -6,16 +7,21 @@ const navigation = [
   { to: "/make", icon: "✂", label: "Make things" },
   { to: "/nearby", icon: "⌖", label: "Near me" },
   { to: "/requests", icon: "♡", label: "Requests" },
-  { to: "/favourites", icon: "♥", label: "Favourites" },
   { to: "/profile", icon: "◉", label: "Profile" },
 ]
 
 export default function Layout() {
   const navigate = useNavigate()
   const user = currentUser()
+  const [theme, setTheme] = useState(() => localStorage.getItem("soochi_theme") || "light")
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem("soochi_theme", theme)
+  }, [theme])
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-theme={theme}>
       <header className="site-header">
         <button
           className="brand"
@@ -45,7 +51,7 @@ export default function Layout() {
         </div>
       </header>
 
-      <Outlet />
+      <Outlet context={{ theme, setTheme }} />
 
       <nav className="bottom-nav" aria-label="Main navigation">
         {navigation.map((item) => (

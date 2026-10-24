@@ -9,7 +9,6 @@ import NearbyPage from "./pages/NearbyPage"
 import RequestsPage from "./pages/RequestsPage"
 import SignupPage from "./pages/SignupPage"
 import ProfilePage from "./pages/ProfilePage"
-import FavouritesPage from "./pages/FavouritesPage"
 import "./App.css"
 
 export default function App() {
@@ -44,7 +43,7 @@ export default function App() {
         <Route path="/make" element={<MakePage />} />
         <Route path="/nearby" element={<NearbyPage />} />
         <Route path="/requests" element={<RequestsPage />} />
-        <Route path="/favourites" element={<FavouritesPage />} />
+        <Route path="/favourites" element={<Navigate to="/profile#favourites" replace />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/inventory" replace />} />

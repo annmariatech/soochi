@@ -5,6 +5,7 @@ export default function ScrapCard({
   onToggle,
   favourited = false,
   onFavourite,
+  onDelete,
   extra,
 }) {
   return (
@@ -17,25 +18,37 @@ export default function ScrapCard({
         <span className="photo-label">
           FABRIC NO. {String(scrap.id).padStart(2, "0")}
         </span>
-        {selectable ? (
-          <button
-            className={`heart-button ${selected ? "is-loved" : ""}`}
-            aria-pressed={selected}
-            aria-label={`${selected ? "Deselect" : "Select"} ${scrap.name}`}
-            onClick={() => onToggle?.(scrap.id)}
-          >
-            {selected ? "✓" : "+"}
-          </button>
-        ) : (
-          <button
-            className={`heart-button ${favourited ? "is-loved" : ""}`}
-            aria-pressed={favourited}
-            aria-label={`${favourited ? "Remove" : "Save"} ${scrap.name} ${favourited ? "from" : "to"} favourites`}
-            onClick={() => onFavourite?.(scrap.id, !favourited)}
-          >
-            {favourited ? "♥" : "♡"}
-          </button>
-        )}
+        <div className="scrap-card-actions">
+          {selectable ? (
+            <button
+              className={`heart-button ${selected ? "is-loved" : ""}`}
+              aria-pressed={selected}
+              aria-label={`${selected ? "Deselect" : "Select"} ${scrap.name}`}
+              onClick={() => onToggle?.(scrap.id)}
+            >
+              {selected ? "✓" : "+"}
+            </button>
+          ) : (
+            <button
+              className={`heart-button ${favourited ? "is-loved" : ""}`}
+              aria-pressed={favourited}
+              aria-label={`${favourited ? "Remove" : "Save"} ${scrap.name} ${favourited ? "from" : "to"} favourites`}
+              onClick={() => onFavourite?.(scrap.id, !favourited)}
+            >
+              {favourited ? "♥" : "♡"}
+            </button>
+          )}
+          {onDelete && (
+            <button
+              className="scrap-delete-button"
+              aria-label={`Delete ${scrap.name}`}
+              title="Delete scrap"
+              onClick={() => onDelete(scrap.id)}
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="scrap-info">

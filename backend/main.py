@@ -8,7 +8,7 @@ from uuid import uuid4
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import inspect, select, text
+from sqlalchemy import delete, inspect, select, text
 from sqlalchemy.orm import Session
 
 from .ai.vlm import tag_scrap
@@ -161,6 +161,19 @@ def save_scraps(scraps: list[ScrapInput], db: Session = Depends(get_db), user: U
 @app.get("/scraps/mine", response_model=list[ScrapOut])
 def my_scraps(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return list(db.scalars(select(Scrap).where(Scrap.owner_id == user.id).order_by(Scrap.id)))
+
+
+@app.delete("/scraps/{scrap_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_scrap(scrap_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    scrap = db.scalar(select(Scrap).where(Scrap.id == scrap_id, Scrap.owner_id == user.id))
+    if scrap is None:
+        raise HTTPException(status_code=404, detail="Scrap not found")
+
+    # Clear dependent rows explicitly so deletion works with SQLite as well as Postgres.
+    db.execute(delete(Favorite).where(Favorite.scrap_id == scrap_id))
+    db.execute(delete(ReuseRequest).where(ReuseRequest.scrap_id == scrap_id))
+    db.delete(scrap)
+    db.commit()
 
 
 @app.get("/products", response_model=list[ProductOut])
