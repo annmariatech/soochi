@@ -12,6 +12,7 @@ export default function InventoryPage() {
   const [error, setError] = useState("")
   const [notice, setNotice] = useState("")
   const [favouriteIds, setFavouriteIds] = useState(new Set())
+  const [loadingScraps, setLoadingScraps] = useState(true)
 
   useEffect(() => {
     let active = true
@@ -20,10 +21,14 @@ export default function InventoryPage() {
         if (active) {
           setScraps(items.map(toCardScrap))
           setFavouriteIds(new Set(favourites.map((item) => item.id)))
+          setLoadingScraps(false)
         }
       })
       .catch((err) => {
-        if (active) setError(err.message)
+        if (active) {
+          setError(err.message)
+          setLoadingScraps(false)
+        }
       })
     return () => {
       active = false
@@ -71,31 +76,80 @@ export default function InventoryPage() {
     return matchesSearch && matchesFilter
   })
 
+  const savedAreaCm2 = scraps.reduce((total, scrap) => {
+    const explicitArea = Number(scrap.area_cm2)
+    if (Number.isFinite(explicitArea) && explicitArea > 0) return total + explicitArea
+    if (scrap.shape_type === "circle") {
+      const radius = Number(scrap.radius_cm)
+      return radius > 0 ? total + Math.PI * radius ** 2 : total
+    }
+    const width = Number(scrap.width_cm ?? scrap.width)
+    const height = Number(scrap.height_cm ?? scrap.height)
+    return width > 0 && height > 0 ? total + width * height : total
+  }, 0)
+  const savedProgress = Math.min((savedAreaCm2 / 5000) * 100, 100)
+  const savedAreaLabel = Math.round(savedAreaCm2).toLocaleString()
+  const savedSquareMetres = (savedAreaCm2 / 10000).toFixed(2)
+
   return (
     <>
       <section className="hero-panel gingham">
         <div className="hero-paper">
-          <span className="eyebrow">A LITTLE LESS WASTE, A LOT MORE WONDER</span>
-          <h1>
-            Your scraps,
-            <br />
-            their <span>second life.</span>
-          </h1>
-          <p>
-            Tiny pieces, big possibilities. Let's turn your leftover fabric into
-            something lovely.
-          </p>
-          <button className="primary-button" onClick={() => navigate("/make")}>
-            Find something to make <span>↗</span>
-          </button>
-          <span className="hero-doodle" aria-hidden="true">
-            ✿
-          </span>
-          <span className="hero-sticker" aria-hidden="true">
-            made
-            <br />
-            with ♡
-          </span>
+          <div className="hero-content-grid">
+            <div className="hero-copy">
+              <span className="eyebrow">A LITTLE LESS WASTE, A LOT MORE WONDER</span>
+              <h1>
+                Your scraps,
+                <br />
+                their <span>second life.</span>
+              </h1>
+              <p>
+                Tiny pieces, big possibilities. Let's turn your leftover fabric into
+                something lovely.
+              </p>
+              <button className="primary-button" onClick={() => navigate("/make")}>
+                Find something to make <span>↗</span>
+              </button>
+            </div>
+
+            <aside className="waste-tracker" aria-label="Your fabric saved tracker">
+              <div className="tracker-heading">
+                <span className="tracker-icon" aria-hidden="true">✳</span>
+                <span className="eyebrow">YOUR WASTE TRACKER</span>
+              </div>
+              <p className="tracker-title">Fabric kept in use</p>
+              <div className="tracker-total" aria-live="polite">
+                {loadingScraps ? (
+                  <span className="tracker-loading">Counting your scraps…</span>
+                ) : (
+                  <>
+                    <strong>{savedAreaLabel}</strong>
+                    <span>cm²</span>
+                  </>
+                )}
+              </div>
+              <div className="tracker-meta">
+                <span>{scraps.length} {scraps.length === 1 ? "piece" : "pieces"} in your collection</span>
+                <span>{savedSquareMetres} m²</span>
+              </div>
+              <div
+                className="tracker-progress"
+                role="progressbar"
+                aria-label="Progress toward 5,000 square centimetres of fabric saved"
+                aria-valuemin="0"
+                aria-valuemax="5000"
+                aria-valuenow={Math.min(Math.round(savedAreaCm2), 5000)}
+              >
+                <span style={{ width: `${savedProgress}%` }} />
+              </div>
+              <div className="tracker-footnote">
+                {savedAreaCm2 >= 5000 ? "5,000 cm² milestone reached ✨" : "Next milestone · 5,000 cm²"}
+              </div>
+              <button className="tracker-add" onClick={() => navigate("/add")}>
+                Add a scrap <span aria-hidden="true">＋</span>
+              </button>
+            </aside>
+          </div>
         </div>
       </section>
 

@@ -35,7 +35,7 @@ export default function ScrapCard({
               aria-label={`${favourited ? "Remove" : "Save"} ${scrap.name} ${favourited ? "from" : "to"} favourites`}
               onClick={() => onFavourite?.(scrap.id, !favourited)}
             >
-              {favourited ? "♥" : "♡"}
+              <img src="/pink-heart-button.jpg" alt="" />
             </button>
           )}
           {onDelete && (

@@ -28,7 +28,7 @@ export default function Layout() {
           onClick={() => navigate("/inventory")}
           aria-label="Soochi home"
         >
-          <span className="brand-mark">s.</span>
+          <img className="brand-logo" src="/soochi-sustainable-logo.png" alt="" />
           <span>
             Soochi<span className="brand-dot">✳</span>
           </span>

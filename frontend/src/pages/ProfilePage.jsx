@@ -70,7 +70,7 @@ export default function ProfilePage() {
             <ScrapCard key={scrap.id} scrap={toCardScrap(scrap)} favourited onFavourite={removeFavourite} />
           ))}
         </div>
-        {!favourites.length && <div className="empty-state"><span>♡</span><h3>No favourites yet</h3><p>Tap the heart on any scrap to save it here.</p></div>}
+        {!favourites.length && <div className="empty-state"><img className="favourites-empty-art" src="/stitched-hearts.jpg" alt="Two pink stitched heart patches" /><h3>No favourites yet</h3><p>Tap the heart on any scrap to save it here.</p></div>}
       </section>
       <button className="text-button profile-logout" onClick={() => { logout(); navigate("/login") }}>Log out</button>
     </main>
