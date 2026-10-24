@@ -42,6 +42,14 @@ mocked; see [Current behavior](#current-behavior-and-limitations).
 - Approximate neighborhood and distance display. Exact user coordinates are
   not included in nearby listing responses.
 
+<img width="1280" height="780" alt="ss3" src="https://github.com/user-attachments/assets/d318d5d7-0b95-4c51-9fb1-2e50bb701883" />
+
+<img width="1280" height="752" alt="ss4" src="https://github.com/user-attachments/assets/698f260e-088b-4b0c-8e9d-7dca8ddcdab7" />
+
+
+<img width="1280" height="640" alt="SS" src="https://github.com/user-attachments/assets/acca0a0f-1706-48bd-aa84-85d55052e422" />
+
+
 ## Project layout
 
 ```text
