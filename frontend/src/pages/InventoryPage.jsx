@@ -101,15 +101,21 @@ export default function InventoryPage() {
               <h1>
                 Your scraps,
                 <br />
-                their <span>second life.</span>
+                their <span>second life.</span><span className="hero-title-heart" aria-hidden="true">♥</span>
               </h1>
               <p>
                 Tiny pieces, big possibilities. Let's turn your leftover fabric into
                 something lovely.
               </p>
-              <button className="primary-button" onClick={() => navigate("/make")}>
-                Find something to make <span>↗</span>
-              </button>
+              <div className="hero-cta-row">
+                <button className="primary-button" onClick={() => navigate("/make")}>
+                  Find something to make <span>↗</span>
+                </button>
+                <figure className="hero-patchwork">
+                  <img src="/stitched-hearts.jpg" alt="Pink stitched heart patches" />
+                  <figcaption>stitched with love</figcaption>
+                </figure>
+              </div>
             </div>
 
             <aside className="waste-tracker" aria-label="Your fabric saved tracker">
