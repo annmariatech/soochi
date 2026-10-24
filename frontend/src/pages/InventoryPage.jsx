@@ -107,54 +107,19 @@ export default function InventoryPage() {
                 Tiny pieces, big possibilities. Let's turn your leftover fabric into
                 something lovely.
               </p>
-              <div className="hero-cta-row">
-                <button className="primary-button" onClick={() => navigate("/make")}>
-                  Find something to make <span>↗</span>
-                </button>
-                <figure className="hero-patchwork">
-                  <img src="/stitched-hearts.jpg" alt="Pink stitched heart patches" />
-                  <figcaption>stitched with love</figcaption>
-                </figure>
-              </div>
+              <button className="primary-button" onClick={() => navigate("/make")}>
+                Find something to make <span>↗</span>
+              </button>
             </div>
 
-            <aside className="waste-tracker" aria-label="Your fabric saved tracker">
-              <div className="tracker-heading">
-                <span className="tracker-icon" aria-hidden="true">✳</span>
-                <span className="eyebrow">YOUR WASTE TRACKER</span>
-              </div>
-              <p className="tracker-title">Fabric kept in use</p>
-              <div className="tracker-total" aria-live="polite">
-                {loadingScraps ? (
-                  <span className="tracker-loading">Counting your scraps…</span>
-                ) : (
-                  <>
-                    <strong>{savedAreaLabel}</strong>
-                    <span>cm²</span>
-                  </>
-                )}
-              </div>
-              <div className="tracker-meta">
-                <span>{scraps.length} {scraps.length === 1 ? "piece" : "pieces"} in your collection</span>
-                <span>{savedSquareMetres} m²</span>
-              </div>
-              <div
-                className="tracker-progress"
-                role="progressbar"
-                aria-label="Progress toward 5,000 square centimetres of fabric saved"
-                aria-valuemin="0"
-                aria-valuemax="5000"
-                aria-valuenow={Math.min(Math.round(savedAreaCm2), 5000)}
-              >
-                <span style={{ width: `${savedProgress}%` }} />
-              </div>
-              <div className="tracker-footnote">
-                {savedAreaCm2 >= 5000 ? "5,000 cm² milestone reached ✨" : "Next milestone · 5,000 cm²"}
-              </div>
-              <button className="tracker-add" onClick={() => navigate("/add")}>
-                Add a scrap <span aria-hidden="true">＋</span>
-              </button>
-            </aside>
+            <div className="hero-art-stage">
+              <span className="hero-art-flower" aria-hidden="true">✿</span>
+              <figure className="hero-patchwork hero-patchwork-large">
+                <img src="/stitched-hearts.jpg" alt="Pink stitched heart patches" />
+                <figcaption>stitched with love</figcaption>
+              </figure>
+              <span className="hero-art-sticker" aria-hidden="true">made<br />with ♡</span>
+            </div>
           </div>
         </div>
       </section>
@@ -241,6 +206,51 @@ export default function InventoryPage() {
               Let's make something <span>♡</span>
             </button>
           </div>
+        </section>
+
+        <section className="impact-end-section">
+          <div className="impact-end-copy">
+            <span className="eyebrow">YOUR LITTLE IMPACT</span>
+            <h2>Every scrap adds up.</h2>
+            <p>Keep your saved fabric in circulation and watch your collection make a difference.</p>
+          </div>
+          <aside className="waste-tracker" aria-label="Your fabric saved tracker">
+            <div className="tracker-heading">
+              <span className="tracker-icon" aria-hidden="true">✳</span>
+              <span className="eyebrow">YOUR WASTE TRACKER</span>
+            </div>
+            <p className="tracker-title">Fabric kept in use</p>
+            <div className="tracker-total" aria-live="polite">
+              {loadingScraps ? (
+                <span className="tracker-loading">Counting your scraps…</span>
+              ) : (
+                <>
+                  <strong>{savedAreaLabel}</strong>
+                  <span>cm²</span>
+                </>
+              )}
+            </div>
+            <div className="tracker-meta">
+              <span>{scraps.length} {scraps.length === 1 ? "piece" : "pieces"} in your collection</span>
+              <span>{savedSquareMetres} m²</span>
+            </div>
+            <div
+              className="tracker-progress"
+              role="progressbar"
+              aria-label="Progress toward 5,000 square centimetres of fabric saved"
+              aria-valuemin="0"
+              aria-valuemax="5000"
+              aria-valuenow={Math.min(Math.round(savedAreaCm2), 5000)}
+            >
+              <span style={{ width: savedProgress + "%" }} />
+            </div>
+            <div className="tracker-footnote">
+              {savedAreaCm2 >= 5000 ? "5,000 cm² milestone reached ✨" : "Next milestone · 5,000 cm²"}
+            </div>
+            <button className="tracker-add" onClick={() => navigate("/add")}>
+              Add a scrap <span aria-hidden="true">＋</span>
+            </button>
+          </aside>
         </section>
       </main>
     </>
