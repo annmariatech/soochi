@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Any
 
 import chromadb
-import ollama
+
+from backend.ai.ollama_client import create_ollama_client
 
 
 logger = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ def _collection():
 
 
 def _embed(text: str) -> list[float]:
-    result = ollama.embed(model=EMBED_MODEL, input=text)
+    result = create_ollama_client().embed(model=EMBED_MODEL, input=text)
     return result["embeddings"][0]
 
 
@@ -90,7 +91,7 @@ def check_suitability(product_name: str, tags: dict[str, Any]) -> dict[str, Any]
             return {"suitable": True, "reason": "Guidance unavailable", "sources": []}
 
         source_text = "\n".join(f"[{item['id']}] {item['text']}" for item in sources)
-        response = ollama.chat(
+        response = create_ollama_client().chat(
             model=CHAT_MODEL,
             messages=[
                 {
