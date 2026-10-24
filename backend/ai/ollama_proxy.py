@@ -28,7 +28,7 @@ RESPONSE_HEADERS = {"content-type", "cache-control"}
 @app.api_route("/{path:path}", methods=["GET", "POST"])
 async def proxy_ollama(path: str, request: Request) -> Response:
     """Authenticate a request and stream an allowed Ollama API response."""
-    expected_token = os.getenv("OLLAMA_PROXY_TOKEN", "")
+    expected_token = os.getenv("OLLAMA_PROXY_TOKEN", "").strip()
     if not expected_token:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
