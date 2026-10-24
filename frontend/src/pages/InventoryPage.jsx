@@ -93,7 +93,7 @@ export default function InventoryPage() {
 
   return (
     <>
-      <section className="hero-panel gingham">
+      <section className="hero-panel gingham page-header">
         <div className="hero-paper">
           <div className="hero-content-grid">
             <div className="hero-copy">

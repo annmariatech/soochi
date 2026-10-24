@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useOutletContext } from "react-router-dom"
 import ScrapCard from "../components/ScrapCard"
+import PageHeader from "../components/PageHeader"
 import { currentUser, getFavourites, getProfile, logout, setFavourite, updateProfile } from "../api"
 import { toCardScrap } from "../lib/scraps"
 
@@ -35,9 +36,11 @@ export default function ProfilePage() {
 
   return (
     <main className="page-main profile-page">
-      <span className="eyebrow">YOUR SOOCHI SPACE</span>
-      <h1 className="page-title">Your profile</h1>
-      <p className="page-lead">Manage your maker details and neighborhood.</p>
+      <PageHeader
+        eyebrow="YOUR SOOCHI SPACE"
+        title="Your profile"
+        description="Manage your maker details and neighborhood."
+      />
       {error && <p className="error-note">{error}</p>}
       {notice && <p className="success-note">{notice}</p>}
       <form className="add-step-card profile-form" onSubmit={save}>

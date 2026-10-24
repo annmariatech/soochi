@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import ScrapCard from "../components/ScrapCard"
+import PageHeader from "../components/PageHeader"
 import {
   createRequest,
   getMyScraps,
@@ -100,11 +101,11 @@ export default function MakePage() {
 
   return (
     <main className="page-main">
-      <span className="eyebrow">YOUR NEXT LITTLE PROJECT</span>
-      <h1 className="page-title">What shall we make?</h1>
-      <p className="page-lead">
-        Choose scraps to combine their usable fabric area for one product.
-      </p>
+      <PageHeader
+        eyebrow="YOUR NEXT LITTLE PROJECT"
+        title="What shall we make?"
+        description="Choose scraps to combine their usable fabric area for one product."
+      />
 
       <div className="mode-tabs" role="tablist">
         <button

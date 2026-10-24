@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { analyzeScraps, saveScraps } from "../api"
+import PageHeader from "../components/PageHeader"
 import { FABRIC_TYPES, PATTERNS, STRETCH, WEIGHTS } from "../lib/scraps"
 
 export default function AddScrapPage() {
@@ -200,8 +201,11 @@ export default function AddScrapPage() {
         ← Back to inventory
       </button>
 
-      <h1>Add fabric scraps</h1>
-      <p>Give leftover fabric a second life, one little piece at a time.</p>
+      <PageHeader
+        eyebrow="ADD TO YOUR COLLECTION"
+        title="Add fabric scraps"
+        description="Give leftover fabric a second life, one little piece at a time."
+      />
 
       <section className="add-step-card">
         <h2>1. Photograph your fabric</h2>

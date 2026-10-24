@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import ScrapCard from "../components/ScrapCard"
 import NearbyMap from "../components/NearbyMap"
+import PageHeader from "../components/PageHeader"
 import { createRequest, currentUser, getFavourites, getNearbyListings, setFavourite } from "../api"
 import { toCardScrap } from "../lib/scraps"
 
@@ -46,16 +47,12 @@ export default function NearbyPage() {
 
   return (
     <main className="page-main">
-      <section className="other-paper gingham nearby-hero">
-        <div className="other-inner">
-          <span className="eyebrow">MAKERS HELPING MAKERS</span>
-          <h1>Good things are nearby.</h1>
-          <p>
-            Listings around {user?.area_name || "your area"} show an area name and
-            approximate distance — never a pin or exact coordinates.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        className="nearby-hero"
+        eyebrow="MAKERS HELPING MAKERS"
+        title="Good things are nearby."
+        description={"Listings around " + (user?.area_name || "your area") + " show an area name and approximate distance — never a pin or exact coordinates."}
+      />
 
       {error && <p className="error-note">{error}</p>}
       {notice && <p className="success-note">{notice}</p>}

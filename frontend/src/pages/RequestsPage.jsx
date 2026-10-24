@@ -4,6 +4,7 @@ import {
   getOutgoingRequests,
   respondToRequest,
 } from "../api"
+import PageHeader from "../components/PageHeader"
 
 function RequestCard({ item, incoming, onRespond, busyId }) {
   const scrap = item.scrap
@@ -94,14 +95,14 @@ export default function RequestsPage() {
 
   return (
     <main className="page-main">
-      <header className="requests-hero">
-        <div>
-          <span className="eyebrow">A LITTLE NOTE FROM A MAKER</span>
-          <h1 className="page-title">Sharing is caring.</h1>
-          <p className="page-lead">A lovely scrap can find a new home, one thoughtful request at a time.</p>
-        </div>
-        <img className="requests-illustration" src="/mail-envelope.jpg" alt="A pink fabric envelope sealed with a heart" />
-      </header>
+      <PageHeader
+        className="requests-hero"
+        eyebrow="A LITTLE NOTE FROM A MAKER"
+        title="Sharing is caring."
+        description="A lovely scrap can find a new home, one thoughtful request at a time."
+        illustration="/mail-envelope.jpg"
+        illustrationAlt="A pink fabric envelope sealed with a heart"
+      />
       {error && <p className="error-note">{error}</p>}
 
       <h2 className="section-heading">Incoming</h2>
